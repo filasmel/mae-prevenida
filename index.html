@@ -205,7 +205,31 @@
     /* ── Step visibility ─────────────────────────────────────── */
     .step { display: none; }
     .step.active { display: block; }
-
+/* ── Goals grid ──────────────────────────────────────────── */
+.goals-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .6rem;
+  margin-top: .2rem;
+}
+.goal-btn {
+  padding: .65rem .5rem;
+  border: 1.5px solid #E8E0EF;
+  border-radius: 12px;
+  background: white;
+  font-family: 'DM Sans', sans-serif;
+  font-size: .82rem; font-weight: 500;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all .18s;
+  text-align: center;
+}
+.goal-btn.selected {
+  border-color: var(--lav);
+  background: var(--lav-lt);
+  color: var(--lav-dk);
+  font-weight: 600;
+}
     /* ── Mobile padding ──────────────────────────────────────── */
     @media (max-width: 500px) {
       #app-card { border-radius: 0; min-height: 100vh; padding: 2rem 1.4rem; }
