@@ -573,8 +573,8 @@ function setVal(id, val) {
 /* ══════════════════════════════════════════════════════════════
    STEP NAVIGATION
 ══════════════════════════════════════════════════════════════ */
-const STEPS     = [null, 'step-1', 'step-2', 'step-3', 'step-success'];
-const PROGRESS  = [null, 25, 50, 75, 100];
+const STEPS     = [null, 'step-1', 'step-2', 'step-3', 'step-4', 'step-success'];
+const PROGRESS  = [null, 20, 40, 60, 80, 100];
 
 function showStep(n) {
   STEPS.forEach(id => { if(id) document.getElementById(id).classList.remove('active'); });
