@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MãePrevenida — Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --rose:      #C9848A;
+      --rose-dk:   #A8646A;
+      --rose-lt:   #F2E0E1;
+      --rose-bg:   #FDF6F6;
+      --lav:       #9B8EC4;
+      --lav-lt:    #EAE6F5;
+      --lav-dk:    #7B6EA4;
+      --mint:      #7AADA0;
+      --mint-lt:   #DFF0EC;
+      --mint-dk:   #5A8D80;
+      --sand:      #F5EFE6;
+      --sand-dk:   #EDE5D8;
+      --ink:       #2D2638;
+      --ink-soft:  #4A4258;
+      --muted:     #8C8499;
+      --white:     #FFFFFF;
+      --card-bg:   rgba(255,255,255,0.84);
+      --border:    rgba(155,142,196,0.15);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--sand);
+      color: var(--ink);
+      min-height: 100vh;
+      padding-bottom: 3rem;
+    }
+
+    /* ── Fixed decorative blobs ──────────────────────────────── */
+    .blob {
+      position: fixed; border-radius: 50%;
+      filter: blur(90px); opacity: .28;
+      pointer-events: none; z-index: 0;
+    }
+    .blob-1 { width:420px; height:420px; background:var(--rose-lt);  top:-120px; left:-100px; }
+    .blob-2 { width:320px; height:320px; background:var(--lav-lt);   bottom:-80px; right:-80px; }
+    .blob-3 { width:240px; height:240px; background:var(--mint-lt);  top:45%; left:55%; }
+
+    /* ── Layout wrapper ──────────────────────────────────────── */
+    .page { position:relative; z-index:1; max-width:480px; margin:0 auto; padding:0 1rem; }
+
+    /* ── Top header bar ──────────────────────────────────────── */
+    .top-bar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.4rem 0 .4rem;
+    }
+    .brand-mark {
+      display:flex; align-items:center; gap:.5rem;
+    }
+    .brand-icon {
+      width:32px; height:32px; border-radius:9px;
+      background: linear-gradient(135deg, var(--rose), var(--lav));
+      display:flex; align-items:center; justify-content:center;
+      font-size:1rem; flex-shrink:0;
+    }
+    .brand-name {
+      font-family:'DM Serif Display', serif;
+      font-size:1.1rem; color:var(--rose); letter-spacing:-.3px;
+    }
+    .today-pill {
+      font-size:.72rem; font-weight:600;
+      color: var(--muted);
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius:99px; padding:.3rem .75rem;
+      letter-spacing:.03em;
+    }
+
+    /* ── Welcome block ───────────────────────────────────────── */
+    .welcome-block { padding: 1.2rem 0 .2rem; }
+    .welcome-greeting {
+      font-family:'DM Serif Display', serif;
+      font-size:1.8rem; line-height:1.15; color:var(--ink);
+    }
+    .welcome-greeting span { color:var(--rose); }
+    .welcome-sub { font-size:.82rem; color:var(--muted); margin-top:.35rem; }
+
+    /* ── Section label ───────────────────────────────────────── */
+    .section-label {
+      font-size:.68rem; font-weight:600; letter-spacing:.1em;
+      text-transform:uppercase; color:var(--muted);
+      margin: 1.6rem 0 .65rem;
+    }
+
+    /* ── Card base ───────────────────────────────────────────── */
+    .card {
+      background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      box-shadow: 0 4px 24px rgba(45,38,56,.06);
+      padding: 1.3rem 1.4rem;
+      margin-bottom: .85rem;
+    }
+    .card-title {
+      font-size:.78rem; font-weight:600; color:var(--muted);
+      letter-spacing:.04em; text-transform:uppercase; margin-bottom:.8rem;
+    }
+
+    /* ── Cycle ring card ─────────────────────────────────────── */
+    .cycle-card {
+      display:flex; align-items:center; gap:1.3rem;
+    }
+    .ring-wrap { flex-shrink:0; position:relative; width:88px; height:88px; }
+    .ring-wrap svg { transform:rotate(-90deg); }
+    .ring-bg   { fill:none; stroke:var(--rose-lt); stroke-width:7; }
+    .ring-fill { fill:none; stroke-width:7; stroke-linecap:round;
+                 transition: stroke-dashoffset .8s cubic-bezier(.4,0,.2,1); }
+    .ring-center {
+      position:absolute; inset:0;
+      display:flex; flex-direction:column;
+      align-items:center; justify-content:center;
+    }
+    .ring-number { font-family:'DM Serif Display',serif; font-size:1.5rem; line-height:1; color:var(--ink); }
+    .ring-unit   { font-size:.6rem; color:var(--muted); font-weight:500; letter-spacing:.05em; margin-top:1px; }
+    .cycle-info  { flex:1; }
+    .cycle-phase {
+      font-family:'DM Serif Display',serif;
+      font-size:1.05rem; line-height:1.25; color:var(--ink); margin-bottom:.3rem;
+    }
+    .cycle-detail { font-size:.78rem; color:var(--muted); line-height:1.55; }
+    .phase-badge {
+      display:inline-block; font-size:.65rem; font-weight:600;
+      letter-spacing:.06em; text-transform:uppercase;
+      border-radius:99px; padding:.22rem .65rem; margin-bottom:.45rem;
+    }
+    .phase-period  { background:var(--rose-lt); color:var(--rose-dk); }
+    .phase-fertile { background:var(--mint-lt); color:var(--mint-dk); }
+    .phase-luteal  { background:var(--lav-lt);  color:var(--lav-dk); }
+    .phase-follicular { background:var(--sand-dk); color:var(--ink-soft); }
+
+    /* ── Mini cycle phase bar ────────────────────────────────── */
+    .phase-bar-wrap { margin-top:.9rem; }
+    .phase-bar-track {
+      height:6px; border-radius:99px; background:var(--rose-lt);
+      position:relative; overflow:hidden;
+    }
+    .phase-bar-fill {
+      height:100%; border-radius:99px;
+      transition: width .8s ease;
+    }
+    .phase-bar-labels {
+      display:flex; justify-content:space-between;
+      font-size:.6rem; color:var(--muted); margin-top:.3rem;
+    }
+
+    /* ── Mood panel ──────────────────────────────────────────── */
+    .mood-grid {
+      display:grid; grid-template-columns:repeat(5,1fr); gap:.5rem;
+    }
+    .mood-btn {
+      display:flex; flex-direction:column; align-items:center;
+      gap:.3rem; padding:.6rem .2rem;
+      border: 1.5px solid transparent;
+      border-radius:16px; background:white;
+      cursor:pointer;
+      transition: transform .15s, border-color .15s, background .15s, box-shadow .15s;
+    }
+    .mood-btn:hover { transform:translateY(-2px); box-shadow:0 4px 12px rgba(45,38,56,.08); }
+    .mood-btn.selected {
+      border-color: var(--lav);
+      background: var(--lav-lt);
+      box-shadow: 0 4px 16px rgba(155,142,196,.22);
+      transform: translateY(-3px) scale(1.05);
+    }
+    .mood-emoji { font-size:1.6rem; line-height:1; }
+    .mood-label { font-size:.58rem; font-weight:500; color:var(--muted); text-align:center; }
+    .mood-btn.selected .mood-label { color:var(--lav-dk); }
+
+    .mood-history {
+      margin-top:1rem; padding-top:.9rem;
+      border-top:1px solid var(--sand-dk);
+    }
+    .mood-history-title { font-size:.7rem; font-weight:600; color:var(--muted); margin-bottom:.5rem; }
+    .mood-history-list  { display:flex; gap:.4rem; flex-wrap:wrap; }
+    .mood-history-chip  {
+      font-size:.72rem; background:var(--sand); border-radius:99px;
+      padding:.22rem .6rem; color:var(--ink-soft);
+      display:flex; align-items:center; gap:.3rem;
+    }
+
+    /* ── Vitals form ─────────────────────────────────────────── */
+    .vitals-row { display:grid; grid-template-columns:1fr 1fr 1fr; gap:.6rem; align-items:end; }
+    .vital-field label {
+      font-size:.7rem; font-weight:600; color:var(--muted);
+      letter-spacing:.03em; display:block; margin-bottom:.3rem;
+    }
+    .vital-input {
+      width:100%; padding:.6rem .75rem;
+      border:1.5px solid #E8E0EF; border-radius:12px;
+      font-family:'DM Sans',sans-serif; font-size:.9rem; color:var(--ink);
+      background:white; outline:none;
+      transition:border-color .2s, box-shadow .2s;
+      text-align:center;
+    }
+    .vital-input:focus { border-color:var(--lav); box-shadow:0 0 0 3px rgba(155,142,196,.18); }
+    .vital-sep {
+      text-align:center; font-size:1.4rem; color:var(--muted);
+      padding-bottom:.5rem; font-weight:300;
+    }
+    .btn-save-vitals {
+      width:100%; margin-top:.9rem; padding:.72rem;
+      border:none; border-radius:14px;
+      background: linear-gradient(135deg, var(--mint) 0%, var(--lav) 100%);
+      color:white; font-family:'DM Sans',sans-serif;
+      font-size:.9rem; font-weight:600; cursor:pointer;
+      letter-spacing:.02em;
+      box-shadow:0 4px 16px rgba(122,173,160,.3);
+      transition:transform .15s, box-shadow .15s;
+    }
+    .btn-save-vitals:hover { transform:translateY(-1px); box-shadow:0 6px 20px rgba(122,173,160,.38); }
+
+    /* ── Vitals history ──────────────────────────────────────── */
+    .vitals-history { margin-top:1rem; padding-top:.9rem; border-top:1px solid var(--sand-dk); }
+    .vh-title { font-size:.7rem; font-weight:600; color:var(--muted); margin-bottom:.5rem; }
+    .vh-row {
+      display:flex; align-items:center; justify-content:space-between;
+      padding:.45rem 0; border-bottom:1px solid var(--sand-dk);
+      font-size:.8rem;
+    }
+    .vh-row:last-child { border-bottom:none; }
+    .vh-date  { color:var(--muted); font-size:.72rem; }
+    .vh-vals  { font-weight:600; color:var(--ink); }
+    .vh-vals span { font-weight:400; color:var(--muted); font-size:.72rem; margin-left:.3rem; }
+    .vh-empty { font-size:.78rem; color:var(--muted); font-style:italic; }
+
+    /* ── Toast ───────────────────────────────────────────────── */
+    .toast {
+      position:fixed; bottom:2rem; left:50%; transform:translateX(-50%) translateY(80px);
+      background:var(--ink); color:white;
+      font-size:.82rem; font-weight:500;
+      padding:.65rem 1.3rem; border-radius:99px;
+      box-shadow:0 8px 28px rgba(45,38,56,.22);
+      transition:transform .3s cubic-bezier(.4,0,.2,1), opacity .3s;
+      opacity:0; pointer-events:none; z-index:999; white-space:nowrap;
+    }
+    .toast.show { transform:translateX(-50%) translateY(0); opacity:1; }
+
+    /* ── Family badges ───────────────────────────────────────── */
+    .family-section { padding:.2rem 0 2rem; }
+    .family-members { display:flex; flex-wrap:wrap; gap:.5rem; margin-top:.1rem; }
+    .family-badge {
+      display:flex; align-items:center; gap:.45rem;
+      background:var(--card-bg); border:1px solid var(--border);
+      border-radius:99px; padding:.4rem .85rem .4rem .55rem;
+      font-size:.8rem; font-weight:500; color:var(--ink-soft);
+      backdrop-filter:blur(10px);
+    }
+    .badge-avatar {
+      width:26px; height:26px; border-radius:50%;
+      display:flex; align-items:center; justify-content:center;
+      font-size:.85rem; flex-shrink:0;
+    }
+    .badge-partner  { background:var(--lav-lt); }
+    .badge-child-0  { background:var(--rose-lt); }
+    .badge-child-1  { background:var(--mint-lt); }
+    .badge-child-2  { background:var(--lav-lt); }
+    .badge-child-3  { background:var(--sand-dk); }
+    .empty-family   { font-size:.8rem; color:var(--muted); font-style:italic; }
+
+    /* ── No profile warning ──────────────────────────────────── */
+    .no-profile {
+      text-align:center; padding:3rem 1.5rem;
+    }
+    .no-profile-icon { font-size:3rem; margin-bottom:1rem; }
+    .no-profile h2 {
+      font-family:'DM Serif Display',serif;
+      font-size:1.4rem; color:var(--ink); margin-bottom:.5rem;
+    }
+    .no-profile p { font-size:.85rem; color:var(--muted); margin-bottom:1.5rem; line-height:1.6; }
+    .btn-go-register {
+      display:inline-block; padding:.8rem 1.6rem;
+      border-radius:14px; border:none;
+      background:linear-gradient(135deg,var(--rose),var(--lav));
+      color:white; font-family:'DM Sans',sans-serif;
+      font-size:.9rem; font-weight:600; cursor:pointer;
+      box-shadow:0 4px 18px rgba(201,132,138,.35);
+      text-decoration:none;
+    }
+
+    @media (max-width:500px) {
+      .blob { display:none; }
+      .page { padding:0 .9rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+  <div class="toast" id="toast"></div>
+
+  <div class="page" id="app">
+    <!-- content injected by JS -->
+  </div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════
+   CONSTANTS
+═══════════════════════════════════════════════════════════════ */
+const DB_KEY      = 'maePrevProfile';
+const HISTORY_KEY = 'maePrevHistory';
+
+const MOODS = [
+  { key:'happy',     emoji:'😊', label:'Feliz'     },
+  { key:'irritated', emoji:'😡', label:'Irritada'  },
+  { key:'tired',     emoji:'😔', label:'Cansada'   },
+  { key:'sensitive', emoji:'😭', label:'Sensível'  },
+  { key:'nauseous',  emoji:'🤢', label:'Enjoada'   },
+];
+
+/* ═══════════════════════════════════════════════════════════════
+   STORAGE HELPERS
+═══════════════════════════════════════════════════════════════ */
+function loadProfile() {
+  try { return JSON.parse(localStorage.getItem(DB_KEY)); } catch(e) { return null; }
+}
+function loadHistory() {
+  try { return JSON.parse(localStorage.getItem(HISTORY_KEY)) || { moods:{}, vitals:[] }; }
+  catch(e) { return { moods:{}, vitals:[] }; }
+}
+function saveHistory(h) {
+  try { localStorage.setItem(HISTORY_KEY, JSON.stringify(h)); } catch(e) {}
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   DATE UTILS
+═══════════════════════════════════════════════════════════════ */
+function todayKey() {
+  return new Date().toISOString().slice(0,10);
+}
+function fmtDate(isoStr, opts) {
+  return new Date(isoStr + 'T12:00:00').toLocaleDateString('pt-PT', opts || { day:'2-digit', month:'short' });
+}
+function fmtDateFull(d) {
+  return d.toLocaleDateString('pt-PT', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   CYCLE ENGINE
+═══════════════════════════════════════════════════════════════ */
+function computeCycle(lastPeriodISO, cycleDays) {
+  const today      = new Date(); today.setHours(0,0,0,0);
+  const lastPeriod = new Date(lastPeriodISO + 'T00:00:00');
+
+  // Find the most recent period start (may be multiple cycles ago)
+  let periodStart = new Date(lastPeriod);
+  while (true) {
+    const next = new Date(periodStart);
+    next.setDate(next.getDate() + cycleDays);
+    if (next > today) break;
+    periodStart = next;
+  }
+
+  const dayOfCycle = Math.floor((today - periodStart) / 86400000) + 1; // 1-indexed
+  const nextPeriod = new Date(periodStart);
+  nextPeriod.setDate(nextPeriod.getDate() + cycleDays);
+
+  const daysUntilNext = Math.round((nextPeriod - today) / 86400000);
+
+  // Ovulation ~ day 14 (fertile window: days 10–16)
+  const ovulationDay   = Math.round(cycleDays / 2);
+  const fertileStart   = ovulationDay - 4;
+  const fertileEnd     = ovulationDay + 2;
+  const isFertile      = dayOfCycle >= fertileStart && dayOfCycle <= fertileEnd;
+  const isPeriod       = dayOfCycle <= 6;
+  const isToday        = daysUntilNext === 0;
+
+  let phase, phaseClass, ringColor, phaseDesc;
+
+  if (isPeriod) {
+    phase      = 'Período Menstrual';
+    phaseClass = 'phase-period';
+    ringColor  = 'var(--rose)';
+    phaseDesc  = `Dia ${dayOfCycle} do teu ciclo. Descansa e cuida de ti. 💊`;
+  } else if (isFertile) {
+    phase      = 'Janela Fértil';
+    phaseClass = 'phase-fertile';
+    ringColor  = 'var(--mint)';
+    phaseDesc  = `Dias ideais para engravidar. Ovulação prevista por volta do dia ${ovulationDay}. 🌿`;
+  } else if (dayOfCycle < fertileStart) {
+    phase      = 'Fase Folicular';
+    phaseClass = 'phase-follicular';
+    ringColor  = 'var(--lav)';
+    phaseDesc  = `Energia a subir. O teu corpo prepara-se para a ovulação.`;
+  } else {
+    phase      = 'Fase Lútea';
+    phaseClass = 'phase-luteal';
+    ringColor  = 'var(--lav)';
+    phaseDesc  = `Fase de maior sensibilidade. Período a caminho em ${daysUntilNext} dias.`;
+  }
+
+  return {
+    dayOfCycle, cycleDays, daysUntilNext,
+    nextPeriodISO: nextPeriod.toISOString().slice(0,10),
+    isFertile, isPeriod, isToday,
+    phase, phaseClass, ringColor, phaseDesc,
+    fertileStart, fertileEnd, ovulationDay
+  };
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   RING SVG
+═══════════════════════════════════════════════════════════════ */
+function buildRing(dayOfCycle, cycleDays, color) {
+  const r   = 36;
+  const circ = 2 * Math.PI * r;
+  const pct  = Math.min(dayOfCycle / cycleDays, 1);
+  const dash = circ * pct;
+  const gap  = circ - dash;
+  return `
+    <div class="ring-wrap">
+      <svg width="88" height="88" viewBox="0 0 88 88">
+        <circle class="ring-bg"   cx="44" cy="44" r="${r}"/>
+        <circle class="ring-fill" cx="44" cy="44" r="${r}"
+          stroke="${color}"
+          stroke-dasharray="${dash.toFixed(2)} ${gap.toFixed(2)}"
+          stroke-dashoffset="0"/>
+      </svg>
+      <div class="ring-center">
+        <div class="ring-number">${dayOfCycle}</div>
+        <div class="ring-unit">dia ${cycleDays > 0 ? '/ '+cycleDays : ''}</div>
+      </div>
+    </div>`;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   TOAST
+═══════════════════════════════════════════════════════════════ */
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   MOOD SECTION
+═══════════════════════════════════════════════════════════════ */
+function renderMoodSection(history) {
+  const today   = todayKey();
+  const selected = history.moods[today]?.key || null;
+
+  const buttons = MOODS.map(m => `
+    <button class="mood-btn ${selected===m.key?'selected':''}"
+            onclick="selectMood('${m.key}','${m.emoji}','${m.label}')"
+            aria-label="${m.label}">
+      <span class="mood-emoji">${m.emoji}</span>
+      <span class="mood-label">${m.label}</span>
+    </button>`).join('');
+
+  // Last 7 days history (excluding today if none)
+  const recentDays = Object.entries(history.moods)
+    .filter(([d]) => d !== today || history.moods[today])
+    .sort((a,b) => b[0].localeCompare(a[0]))
+    .slice(0,7);
+
+  const histHTML = recentDays.length ? recentDays.map(([d,v]) => `
+    <div class="mood-history-chip">
+      <span>${v.emoji}</span>
+      <span>${fmtDate(d,{day:'2-digit',month:'short'})}</span>
+    </div>`).join('') : `<span style="font-size:.78rem;color:var(--muted);font-style:italic;">Sem registos anteriores.</span>`;
+
+  return `
+    <div class="section-label">Como te sentes hoje?</div>
+    <div class="card">
+      <div class="mood-grid" id="mood-grid">${buttons}</div>
+      <div class="mood-history">
+        <div class="mood-history-title">Histórico recente</div>
+        <div class="mood-history-list" id="mood-history-list">${histHTML}</div>
+      </div>
+    </div>`;
+}
+
+function selectMood(key, emoji, label) {
+  const history = loadHistory();
+  history.moods[todayKey()] = { key, emoji, label };
+  saveHistory(history);
+
+  // Update buttons in-place
+  document.querySelectorAll('.mood-btn').forEach(btn => {
+    btn.classList.toggle('selected', btn.getAttribute('onclick').includes(`'${key}'`));
+  });
+
+  // Refresh history chips
+  const recentDays = Object.entries(history.moods)
+    .sort((a,b) => b[0].localeCompare(a[0])).slice(0,7);
+  document.getElementById('mood-history-list').innerHTML = recentDays.map(([d,v]) => `
+    <div class="mood-history-chip">
+      <span>${v.emoji}</span>
+      <span>${fmtDate(d,{day:'2-digit',month:'short'})}</span>
+    </div>`).join('');
+
+  showToast(`Humor registado: ${emoji} ${label}`);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   VITALS SECTION
+═══════════════════════════════════════════════════════════════ */
+function renderVitalsSection(profile, history) {
+  const defaultWeight = profile.userProfile.weight || '';
+  const lastThree = (history.vitals || []).slice(-3).reverse();
+
+  const histRows = lastThree.length
+    ? lastThree.map(v => `
+        <div class="vh-row">
+          <div class="vh-date">${fmtDate(v.date,{day:'2-digit',month:'short',year:'2-digit'})}</div>
+          <div class="vh-vals">
+            ${v.sys}/${v.dia} <span>mmHg</span>
+          </div>
+          <div class="vh-vals">
+            ${v.weight} <span>kg</span>
+          </div>
+        </div>`).join('')
+    : `<div class="vh-empty">Ainda sem leituras registadas.</div>`;
+
+  return `
+    <div class="section-label">Sinais Vitais</div>
+    <div class="card">
+      <div class="card-title">Tensão Arterial &amp; Peso</div>
+      <div class="vitals-row">
+        <div class="vital-field">
+          <label>Sistólica</label>
+          <input class="vital-input" type="number" id="v-sys" placeholder="12" min="6" max="25" />
+        </div>
+        <div class="vital-sep" style="padding-bottom:.7rem;">/</div>
+        <div class="vital-field">
+          <label>Diastólica</label>
+          <input class="vital-input" type="number" id="v-dia" placeholder="8" min="4" max="15" />
+        </div>
+      </div>
+      <div class="vital-field" style="margin-top:.6rem;">
+        <label style="font-size:.7rem;font-weight:600;color:var(--muted);letter-spacing:.03em;display:block;margin-bottom:.3rem;">Peso atual (kg)</label>
+        <input class="vital-input" type="number" id="v-weight" placeholder="${defaultWeight}" value="${defaultWeight}" step="0.1" min="30" max="300" style="text-align:left;"/>
+      </div>
+      <button class="btn-save-vitals" onclick="saveVitals()">Guardar leitura</button>
+
+      <div class="vitals-history">
+        <div class="vh-title">Últimas leituras</div>
+        <div id="vitals-history-list">
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;font-size:.65rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.4rem;">
+            <span>Data</span><span style="text-align:center;">Tensão</span><span style="text-align:right;">Peso</span>
+          </div>
+          ${histRows}
+        </div>
+      </div>
+    </div>`;
+}
+
+function saveVitals() {
+  const sys    = document.getElementById('v-sys').value;
+  const dia    = document.getElementById('v-dia').value;
+  const weight = document.getElementById('v-weight').value;
+
+  if (!sys || !dia || !weight) { showToast('⚠️ Preenche todos os campos.'); return; }
+
+  const history = loadHistory();
+  if (!history.vitals) history.vitals = [];
+
+  history.vitals.push({ date:todayKey(), sys, dia, weight });
+  // Keep last 20 readings
+  if (history.vitals.length > 20) history.vitals = history.vitals.slice(-20);
+  saveHistory(history);
+
+  // Refresh table
+  const lastThree = history.vitals.slice(-3).reverse();
+  const rows = lastThree.map(v => `
+    <div class="vh-row">
+      <div class="vh-date">${fmtDate(v.date,{day:'2-digit',month:'short',year:'2-digit'})}</div>
+      <div class="vh-vals">${v.sys}/${v.dia} <span>mmHg</span></div>
+      <div class="vh-vals">${v.weight} <span>kg</span></div>
+    </div>`).join('');
+
+  document.getElementById('vitals-history-list').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;font-size:.65rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.4rem;">
+      <span>Data</span><span style="text-align:center;">Tensão</span><span style="text-align:right;">Peso</span>
+    </div>${rows}`;
+
+  document.getElementById('v-sys').value = '';
+  document.getElementById('v-dia').value = '';
+  showToast('✅ Leitura guardada com sucesso!');
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   FAMILY SECTION
+═══════════════════════════════════════════════════════════════ */
+function renderFamilySection(profile) {
+  const f = profile.familyStructure;
+  const badges = [];
+
+  if (f.hasPartner && f.partnerName) {
+    badges.push(`
+      <div class="family-badge">
+        <div class="badge-avatar badge-partner">💑</div>
+        <span>${f.partnerName}</span>
+      </div>`);
+  }
+
+  (f.children || []).forEach((child, i) => {
+    const icons = ['🧒','👧','👦','🧒'];
+    badges.push(`
+      <div class="family-badge">
+        <div class="badge-avatar badge-child-${i % 4}">${icons[i % 4]}</div>
+        <span>${child.name || `Filho ${child.id}`}</span>
+      </div>`);
+  });
+
+  const content = badges.length
+    ? badges.join('')
+    : `<span class="empty-family">Nenhum membro familiar adicionado ainda.</span>`;
+
+  return `
+    <div class="family-section">
+      <div class="section-label">A minha Família</div>
+      <div class="family-members">${content}</div>
+    </div>`;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   RENDER ALL
+═══════════════════════════════════════════════════════════════ */
+function renderDashboard(profile, history) {
+  const up      = profile.userProfile;
+  const cycle   = computeCycle(up.lastPeriodDate, up.cycleDuration);
+  const firstName = up.name.split(' ')[0];
+
+  // Greeting by hour
+  const h = new Date().getHours();
+  const greet = h < 12 ? 'Bom dia' : h < 18 ? 'Boa tarde' : 'Boa noite';
+
+  // Cycle status text
+  let cycleStatusText;
+  if (cycle.isPeriod) {
+    cycleStatusText = `O teu período menstrual está <strong>a decorrer</strong> — dia ${cycle.dayOfCycle}.`;
+  } else if (cycle.isToday) {
+    cycleStatusText = `O teu período está <strong>previsto para hoje</strong>. 🌸`;
+  } else if (cycle.isFertile) {
+    cycleStatusText = `Estás na tua <strong>janela fértil</strong> — dias ideais para engravidar.`;
+  } else {
+    cycleStatusText = `Próximo período daqui a <strong>${cycle.daysUntilNext} ${cycle.daysUntilNext===1?'dia':'dias'}</strong> (${fmtDate(cycle.nextPeriodISO, {day:'2-digit',month:'long'})}).`;
+  }
+
+  // Phase bar width %
+  const barPct = Math.round((cycle.dayOfCycle / cycle.cycleDays) * 100);
+
+  const app = document.getElementById('app');
+  app.innerHTML = `
+
+    <!-- ── TOP BAR ───────────────────────────── -->
+    <div class="top-bar">
+      <div class="brand-mark">
+        <div class="brand-icon">🌸</div>
+        <div class="brand-name">MãePrevenida</div>
+      </div>
+      <div class="today-pill" id="today-pill"></div>
+    </div>
+
+    <!-- ── WELCOME ───────────────────────────── -->
+    <div class="welcome-block">
+      <div class="welcome-greeting">
+        ${greet},<br/><span>${firstName}</span> 🌸
+      </div>
+      <div class="welcome-sub">Aqui está o teu resumo de hoje.</div>
+    </div>
+
+    <!-- ── CYCLE CARD ─────────────────────────── -->
+    <div class="section-label">O teu ciclo</div>
+    <div class="card">
+      <div class="cycle-card">
+        ${buildRing(cycle.dayOfCycle, cycle.cycleDays, cycle.ringColor)}
+        <div class="cycle-info">
+          <div class="phase-badge ${cycle.phaseClass}">${cycle.phase}</div>
+          <div class="cycle-phase">${cycleStatusText}</div>
+          <div class="cycle-detail">${cycle.phaseDesc}</div>
+        </div>
+      </div>
+      <div class="phase-bar-wrap">
+        <div class="phase-bar-track">
+          <div class="phase-bar-fill" id="phase-bar" style="width:0%;background:${cycle.ringColor}"></div>
+        </div>
+        <div class="phase-bar-labels">
+          <span>Dia 1</span>
+          <span>Fértil (D${cycle.fertileStart}–${cycle.fertileEnd})</span>
+          <span>Dia ${cycle.cycleDays}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── MOOD ──────────────────────────────── -->
+    ${renderMoodSection(history)}
+
+    <!-- ── VITALS ────────────────────────────── -->
+    ${renderVitalsSection(profile, history)}
+
+    <!-- ── FAMILY ────────────────────────────── -->
+    ${renderFamilySection(profile)}
+  `;
+
+  // Fill today date
+  document.getElementById('today-pill').textContent =
+    new Date().toLocaleDateString('pt-PT', { weekday:'short', day:'numeric', month:'short' });
+
+  // Animate phase bar after paint
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      const bar = document.getElementById('phase-bar');
+      if (bar) bar.style.width = barPct + '%';
+    });
+  });
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   NO-PROFILE SCREEN
+═══════════════════════════════════════════════════════════════ */
+function renderNoProfile() {
+  document.getElementById('app').innerHTML = `
+    <div class="top-bar">
+      <div class="brand-mark">
+        <div class="brand-icon">🌸</div>
+        <div class="brand-name">MãePrevenida</div>
+      </div>
+    </div>
+    <div class="no-profile">
+      <div class="no-profile-icon">🔍</div>
+      <h2>Perfil não encontrado</h2>
+      <p>Parece que ainda não criaste o teu perfil.<br/>
+         Completa o registo para acederes ao Dashboard.</p>
+      <a class="btn-go-register" href="mae-prevenida-sub1.1.html">
+        Criar o meu perfil →
+      </a>
+    </div>`;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════════════════════════ */
+(function init() {
+  const profile = loadProfile();
+  const history = loadHistory();
+
+  if (!profile || !profile.userProfile || !profile.userProfile.lastPeriodDate) {
+    renderNoProfile();
+    return;
+  }
+  renderDashboard(profile, history);
+})();
+</script>
+</body>
+</html>

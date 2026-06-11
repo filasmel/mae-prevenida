@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MãePrevenida — Criar Perfil</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --rose:    #C9848A;
+      --rose-lt: #F2E0E1;
+      --rose-bg: #FDF6F6;
+      --lav:     #9B8EC4;
+      --lav-lt:  #EAE6F5;
+      --mint:    #7AADA0;
+      --mint-lt: #DFF0EC;
+      --sand:    #F5EFE6;
+      --ink:     #2D2638;
+      --muted:   #8C8499;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--sand);
+      color: var(--ink);
+      min-height: 100vh;
+      margin: 0;
+    }
+
+    /* ── Decorative background blobs ─────────────────────────── */
+    .bg-blob {
+      position: fixed; border-radius: 50%; filter: blur(80px);
+      opacity: .35; pointer-events: none; z-index: 0;
+    }
+    .blob-1 { width: 360px; height: 360px; background: var(--rose-lt); top: -100px; left: -80px; }
+    .blob-2 { width: 280px; height: 280px; background: var(--lav-lt); bottom: -60px; right: -60px; }
+    .blob-3 { width: 200px; height: 200px; background: var(--mint-lt); top: 40%; left: 50%; transform: translateX(-50%); }
+
+    /* ── Card ────────────────────────────────────────────────── */
+    #app-card {
+      position: relative; z-index: 1;
+      background: rgba(255,255,255,.82);
+      backdrop-filter: blur(18px);
+      border: 1px solid rgba(201,132,138,.18);
+      border-radius: 28px;
+      box-shadow: 0 8px 40px rgba(45,38,56,.08);
+      width: 100%; max-width: 460px;
+      margin: 0 auto;
+      padding: 2.5rem 2rem;
+    }
+
+    /* ── Brand header ────────────────────────────────────────── */
+    .brand-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.75rem;
+      color: var(--rose);
+      letter-spacing: -.5px;
+      line-height: 1;
+    }
+    .brand-sub { font-size: .8rem; color: var(--muted); letter-spacing: .06em; text-transform: uppercase; margin-top: 2px; }
+
+    /* ── Progress bar ────────────────────────────────────────── */
+    .progress-track {
+      height: 4px; background: var(--rose-lt); border-radius: 99px; margin: 1.6rem 0 .5rem;
+    }
+    .progress-fill {
+      height: 100%; border-radius: 99px;
+      background: linear-gradient(90deg, var(--rose), var(--lav));
+      transition: width .45s cubic-bezier(.4,0,.2,1);
+    }
+    .step-label { font-size: .72rem; color: var(--muted); letter-spacing: .04em; text-transform: uppercase; }
+
+    /* ── Step title ──────────────────────────────────────────── */
+    .step-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.35rem; color: var(--ink);
+      margin: 1.2rem 0 .3rem;
+    }
+    .step-desc { font-size: .85rem; color: var(--muted); margin-bottom: 1.4rem; line-height: 1.55; }
+
+    /* ── Inputs ──────────────────────────────────────────────── */
+    .field { margin-bottom: 1rem; }
+    label { font-size: .78rem; font-weight: 600; color: var(--ink); letter-spacing: .02em; display: block; margin-bottom: .35rem; }
+
+    input[type="text"],
+    input[type="number"],
+    input[type="date"],
+    select {
+      width: 100%;
+      padding: .7rem 1rem;
+      border: 1.5px solid #E8E0EF;
+      border-radius: 12px;
+      background: white;
+      font-family: 'DM Sans', sans-serif;
+      font-size: .9rem;
+      color: var(--ink);
+      outline: none;
+      transition: border-color .2s, box-shadow .2s;
+      appearance: none;
+    }
+    input:focus, select:focus {
+      border-color: var(--lav);
+      box-shadow: 0 0 0 3px rgba(155,142,196,.18);
+    }
+    input.err, select.err { border-color: var(--rose); }
+    .err-msg { font-size: .72rem; color: var(--rose); margin-top: .3rem; display: none; }
+    .err-msg.show { display: block; }
+
+    /* ── Toggle (Sim/Não) ────────────────────────────────────── */
+    .toggle-group { display: flex; gap: .6rem; }
+    .toggle-btn {
+      flex: 1; padding: .65rem;
+      border: 1.5px solid #E8E0EF;
+      border-radius: 12px;
+      background: white;
+      font-family: 'DM Sans', sans-serif;
+      font-size: .88rem; font-weight: 500;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all .18s;
+      text-align: center;
+    }
+    .toggle-btn.active-yes  { border-color: var(--mint); background: var(--mint-lt); color: var(--mint); }
+    .toggle-btn.active-no   { border-color: var(--rose); background: var(--rose-lt); color: var(--rose); }
+
+    /* ── Conditional reveal ──────────────────────────────────── */
+    .reveal {
+      overflow: hidden;
+      max-height: 0;
+      opacity: 0;
+      transition: max-height .35s ease, opacity .3s ease, margin .3s ease;
+      margin-top: 0;
+    }
+    .reveal.open { max-height: 600px; opacity: 1; margin-top: .85rem; }
+
+    /* ── Children name fields ────────────────────────────────── */
+    #children-names .field:last-child { margin-bottom: 0; }
+
+    /* ── Buttons ─────────────────────────────────────────────── */
+    .btn-primary {
+      width: 100%;
+      padding: .85rem;
+      border: none; border-radius: 14px;
+      background: linear-gradient(135deg, var(--rose) 0%, var(--lav) 100%);
+      color: white;
+      font-family: 'DM Sans', sans-serif;
+      font-size: .95rem; font-weight: 600;
+      cursor: pointer;
+      margin-top: 1.4rem;
+      letter-spacing: .02em;
+      box-shadow: 0 4px 18px rgba(201,132,138,.35);
+      transition: transform .15s, box-shadow .15s;
+    }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(201,132,138,.42); }
+    .btn-primary:active { transform: translateY(0); }
+
+    .btn-back {
+      width: 100%; padding: .7rem;
+      border: 1.5px solid #E8E0EF;
+      border-radius: 14px;
+      background: white; color: var(--muted);
+      font-family: 'DM Sans', sans-serif;
+      font-size: .88rem; font-weight: 500;
+      cursor: pointer; margin-top: .6rem;
+      transition: border-color .18s, color .18s;
+    }
+    .btn-back:hover { border-color: var(--lav); color: var(--lav); }
+
+    /* ── Success screen ──────────────────────────────────────── */
+    #step-success { text-align: center; padding: 1rem 0; }
+    .success-icon {
+      width: 72px; height: 72px; border-radius: 50%;
+      background: var(--mint-lt);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 1.2rem;
+      font-size: 2rem;
+    }
+    .success-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.5rem; color: var(--ink); margin-bottom: .5rem;
+    }
+    .success-msg { font-size: .88rem; color: var(--muted); line-height: 1.6; margin-bottom: 1.4rem; }
+    .success-name { color: var(--rose); font-weight: 600; }
+
+    .redirect-bar {
+      height: 4px; background: var(--rose-lt); border-radius: 99px; margin: 1rem 0 .4rem;
+    }
+    .redirect-fill {
+      height: 100%; width: 0; border-radius: 99px;
+      background: linear-gradient(90deg, var(--mint), var(--lav));
+      transition: width 3s linear;
+    }
+    .redirect-label { font-size: .72rem; color: var(--muted); text-align: center; }
+
+    /* ── Utility ─────────────────────────────────────────────── */
+    .divider {
+      height: 1px; background: linear-gradient(90deg, transparent, #E8E0EF, transparent);
+      margin: 1.4rem 0;
+    }
+    .inline-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; }
+
+    /* ── Step visibility ─────────────────────────────────────── */
+    .step { display: none; }
+    .step.active { display: block; }
+
+    /* ── Mobile padding ──────────────────────────────────────── */
+    @media (max-width: 500px) {
+      #app-card { border-radius: 0; min-height: 100vh; padding: 2rem 1.4rem; }
+      .bg-blob { display: none; }
+    }
+  </style>
+</head>
+<body class="flex items-start justify-center px-4 py-10 min-h-screen">
+
+  <!-- Background decoration -->
+  <div class="bg-blob blob-1"></div>
+  <div class="bg-blob blob-2"></div>
+  <div class="bg-blob blob-3"></div>
+
+  <div id="app-card">
+
+    <!-- Brand -->
+    <div class="flex items-center gap-3">
+      <div style="width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,var(--rose),var(--lav));display:flex;align-items:center;justify-content:center;font-size:1.2rem;">🌸</div>
+      <div>
+        <div class="brand-title">MãePrevenida</div>
+        <div class="brand-sub">Saúde & Família</div>
+      </div>
+    </div>
+
+    <!-- Progress -->
+    <div id="progress-section">
+      <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:25%"></div></div>
+      <div class="step-label" id="step-label">Passo 1 de 4</div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- PASSO 1 — Dados Básicos                                 -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <div class="step active" id="step-1">
+      <div class="step-title">Olá! Vamos começar 👋</div>
+      <p class="step-desc">Conta-nos um pouco sobre ti para personalizar a tua experiência.</p>
+
+      <div class="field">
+        <label for="name">O teu nome</label>
+        <input type="text" id="name" placeholder="Ex: Ana Beatriz" autocomplete="off" />
+        <div class="err-msg" id="err-name">Por favor, indica o teu nome.</div>
+      </div>
+
+      <div class="inline-grid-2">
+        <div class="field">
+          <label for="age">Idade</label>
+          <input type="number" id="age" placeholder="Ex: 30" min="12" max="100" />
+          <div class="err-msg" id="err-age">Idade inválida (12–100).</div>
+        </div>
+        <div class="field">
+          <label for="weight">Peso (kg)</label>
+          <input type="number" id="weight" placeholder="Ex: 65" min="30" max="300" step="0.1" />
+          <div class="err-msg" id="err-weight">Indica um peso válido.</div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="height">Altura (cm)</label>
+        <input type="number" id="height" placeholder="Ex: 165" min="100" max="250" />
+        <div class="err-msg" id="err-height">Indica uma altura válida (100–250 cm).</div>
+      </div>
+
+      <button class="btn-primary" onclick="goToStep(2)">Continuar →</button>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- PASSO 2 — Saúde da Mulher                               -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <div class="step" id="step-2">
+      <div class="step-title">A tua saúde, <span id="display-name" class="text-rose-400"></span> 🌸</div>
+      <p class="step-desc">Estas informações ajudam-nos a prever o teu ciclo e enviar alertas no momento certo.</p>
+
+      <div class="field">
+        <label for="last-period">Data do último período menstrual</label>
+        <input type="date" id="last-period" />
+        <div class="err-msg" id="err-last-period">Por favor, seleciona uma data.</div>
+      </div>
+
+      <div class="field">
+        <label for="cycle-duration">Duração média do ciclo (dias)</label>
+        <input type="number" id="cycle-duration" placeholder="Ex: 28" min="15" max="60" value="28" />
+        <div class="err-msg" id="err-cycle">Indica um valor entre 15 e 60 dias.</div>
+      </div>
+
+      <button class="btn-primary" onclick="goToStep(3)">Continuar →</button>
+      <button class="btn-back" onclick="goToStep(1)">← Voltar</button>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- PASSO 3 — Estrutura Familiar                            -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <div class="step" id="step-3">
+      <div class="step-title">A tua família 💕</div>
+      <p class="step-desc">Vamos preparar o teu espaço familiar. Podes sempre alterar estas informações mais tarde.</p>
+
+      <!-- Parceiro -->
+      <div class="field">
+        <label>Tens marido ou parceiro?</label>
+        <div class="toggle-group">
+          <button class="toggle-btn" id="partner-yes" onclick="setToggle('partner', true)">Sim</button>
+          <button class="toggle-btn" id="partner-no"  onclick="setToggle('partner', false)">Não</button>
+        </div>
+        <div class="err-msg" id="err-partner">Por favor, seleciona uma opção.</div>
+      </div>
+
+      <div class="reveal" id="reveal-partner-name">
+        <div class="field" style="margin-bottom:0">
+          <label for="partner-name">Nome do teu parceiro</label>
+          <input type="text" id="partner-name" placeholder="Ex: João Miguel" autocomplete="off" />
+          <div class="err-msg" id="err-partner-name">Por favor, indica o nome do teu parceiro.</div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Filhos -->
+      <div class="field">
+        <label>Tens filhos?</label>
+        <div class="toggle-group">
+          <button class="toggle-btn" id="children-yes" onclick="setToggle('children', true)">Sim</button>
+          <button class="toggle-btn" id="children-no"  onclick="setToggle('children', false)">Não</button>
+        </div>
+        <div class="err-msg" id="err-children">Por favor, seleciona uma opção.</div>
+      </div>
+
+      <div class="reveal" id="reveal-children">
+        <div class="field">
+          <label for="children-count">Quantos filhos tens?</label>
+          <select id="children-count" onchange="generateChildFields()">
+            <option value="">Seleciona...</option>
+            <option value="1">1 filho</option>
+            <option value="2">2 filhos</option>
+            <option value="3">3 filhos</option>
+            <option value="4">4 filhos</option>
+            <option value="5">5 ou mais filhos</option>
+          </select>
+          <div class="err-msg" id="err-children-count">Por favor, seleciona a quantidade.</div>
+        </div>
+        <div id="children-names"></div>
+      </div>
+
+      <button class="btn-primary" onclick="goToStep(4)">Guardar e Continuar →</button>
+      <button class="btn-back" onclick="goToStep(2)">← Voltar</button>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- PASSO 4 — Sucesso                                       -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <div class="step" id="step-success">
+      <div class="success-icon">✅</div>
+      <div class="success-title">Perfil criado com sucesso!</div>
+      <p class="success-msg">
+        Bem-vinda ao <strong>MãePrevenida</strong>, <span class="success-name" id="success-name"></span>!<br/>
+        O teu espaço de saúde e bem-estar está pronto.
+      </p>
+
+      <div id="summary-card" style="background:var(--sand);border-radius:16px;padding:1rem 1.2rem;text-align:left;font-size:.83rem;line-height:1.9;color:var(--ink);">
+        <!-- preenchido por JS -->
+      </div>
+
+      <div style="margin-top:1.4rem;">
+        <div class="redirect-bar"><div class="redirect-fill" id="redirect-fill"></div></div>
+        <div class="redirect-label">A redirecionar para o Dashboard…</div>
+      </div>
+
+      <button class="btn-primary" onclick="goToDashboard()" style="margin-top:1rem;">
+        Ir para o Dashboard agora →
+      </button>
+      <button class="btn-back" onclick="resetAll()" style="margin-top:.5rem;">Recomeçar registo</button>
+    </div>
+
+  </div><!-- /app-card -->
+
+<script>
+/* ══════════════════════════════════════════════════════════════
+   STORAGE KEY
+══════════════════════════════════════════════════════════════ */
+const LS_KEY   = 'maePrevShared_1_1';
+const DB_KEY   = 'maePrevProfile';
+
+/* ══════════════════════════════════════════════════════════════
+   STATE  — in-memory draft that syncs to localStorage
+══════════════════════════════════════════════════════════════ */
+let state = {
+  currentStep: 1,
+  draft: {
+    name: '', age: '', weight: '', height: '',
+    lastPeriod: '', cycleDuration: 28,
+    hasPartner: null, partnerName: '',
+    hasChildren: null, childrenCount: '', childrenNames: []
+  }
+};
+
+/* ══════════════════════════════════════════════════════════════
+   PERSISTENCE HELPERS
+══════════════════════════════════════════════════════════════ */
+function saveDraft() {
+  try { localStorage.setItem(LS_KEY, JSON.stringify(state)); } catch(e) {}
+}
+
+function loadDraft() {
+  try {
+    const saved = localStorage.getItem(LS_KEY);
+    if (saved) { state = JSON.parse(saved); }
+  } catch(e) { resetState(); }
+}
+
+function resetState() {
+  localStorage.removeItem(LS_KEY);
+  localStorage.removeItem(DB_KEY);
+  state = {
+    currentStep: 1,
+    draft: {
+      name:'', age:'', weight:'', height:'',
+      lastPeriod:'', cycleDuration:28,
+      hasPartner:null, partnerName:'',
+      hasChildren:null, childrenCount:'', childrenNames:[]
+    }
+  };
+}
+
+function commitProfile() {
+  const d = state.draft;
+  const profile = {
+    userProfile: {
+      name:           d.name,
+      age:            Number(d.age),
+      weight:         Number(d.weight),
+      height:         Number(d.height),
+      lastPeriodDate: d.lastPeriod,
+      cycleDuration:  Number(d.cycleDuration)
+    },
+    familyStructure: {
+      hasPartner:    d.hasPartner,
+      partnerName:   d.hasPartner ? d.partnerName : null,
+      childrenCount: d.hasChildren ? Number(d.childrenCount) : 0,
+      children:      d.hasChildren ? d.childrenNames.map((n,i)=>({id:i+1,name:n})) : []
+    },
+    createdAt: new Date().toISOString()
+  };
+  try { localStorage.setItem(DB_KEY, JSON.stringify(profile)); } catch(e) {}
+  return profile;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   RESTORE UI from state
+══════════════════════════════════════════════════════════════ */
+function restoreUI() {
+  const d = state.draft;
+
+  // Step 1
+  setVal('name',           d.name);
+  setVal('age',            d.age);
+  setVal('weight',         d.weight);
+  setVal('height',         d.height);
+
+  // Step 2
+  setVal('last-period',    d.lastPeriod);
+  setVal('cycle-duration', d.cycleDuration);
+
+  // Step 3 — partner
+  if (d.hasPartner !== null) {
+    setToggleUI('partner', d.hasPartner);
+    if (d.hasPartner) setVal('partner-name', d.partnerName);
+  }
+  // Step 3 — children
+  if (d.hasChildren !== null) {
+    setToggleUI('children', d.hasChildren);
+    if (d.hasChildren && d.childrenCount) {
+      setVal('children-count', d.childrenCount);
+      generateChildFields(true);
+    }
+  }
+
+  // Activate correct step
+  showStep(state.currentStep);
+}
+
+function setVal(id, val) {
+  const el = document.getElementById(id);
+  if (el && val !== '' && val !== null && val !== undefined) el.value = val;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   STEP NAVIGATION
+══════════════════════════════════════════════════════════════ */
+const STEPS     = [null, 'step-1', 'step-2', 'step-3', 'step-success'];
+const PROGRESS  = [null, 25, 50, 75, 100];
+
+function showStep(n) {
+  STEPS.forEach(id => { if(id) document.getElementById(id).classList.remove('active'); });
+  const target = STEPS[n];
+  if (!target) return;
+  document.getElementById(target).classList.add('active');
+
+  const prog = document.getElementById('progress-section');
+  const isSuccess = (n === 4);
+  prog.style.display = isSuccess ? 'none' : '';
+
+  if (!isSuccess) {
+    document.getElementById('progress-fill').style.width = PROGRESS[n] + '%';
+    document.getElementById('step-label').textContent = `Passo ${n} de 3`;
+  }
+
+  state.currentStep = n;
+  saveDraft();
+}
+
+function goToStep(n) {
+  if (n > state.currentStep && !validateStep(state.currentStep)) return;
+
+  // Pre-fill UI bindings before showing
+  if (n === 2) {
+    document.getElementById('display-name').textContent = state.draft.name || '';
+  }
+  if (n === 4) {
+    saveStep3();
+    const profile = commitProfile();
+    showSuccessScreen(profile);
+    localStorage.removeItem(LS_KEY); // draft no longer needed
+    return;
+  }
+
+  saveCurrentStep(state.currentStep);
+  showStep(n);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   SAVE STEP DATA
+══════════════════════════════════════════════════════════════ */
+function saveCurrentStep(n) {
+  if (n === 1) saveStep1();
+  if (n === 2) saveStep2();
+  if (n === 3) saveStep3();
+}
+
+function saveStep1() {
+  state.draft.name   = document.getElementById('name').value.trim();
+  state.draft.age    = document.getElementById('age').value;
+  state.draft.weight = document.getElementById('weight').value;
+  state.draft.height = document.getElementById('height').value;
+  saveDraft();
+}
+
+function saveStep2() {
+  state.draft.lastPeriod     = document.getElementById('last-period').value;
+  state.draft.cycleDuration  = document.getElementById('cycle-duration').value || 28;
+  saveDraft();
+}
+
+function saveStep3() {
+  if (state.draft.hasPartner) {
+    state.draft.partnerName = document.getElementById('partner-name').value.trim();
+  }
+  if (state.draft.hasChildren) {
+    state.draft.childrenCount = document.getElementById('children-count').value;
+    const count = parseInt(state.draft.childrenCount) || 0;
+    state.draft.childrenNames = [];
+    for (let i = 1; i <= count; i++) {
+      const el = document.getElementById(`child-name-${i}`);
+      state.draft.childrenNames.push(el ? el.value.trim() : '');
+    }
+  }
+  saveDraft();
+}
+
+/* ══════════════════════════════════════════════════════════════
+   VALIDATION
+══════════════════════════════════════════════════════════════ */
+function clearErrors() {
+  document.querySelectorAll('.err-msg').forEach(e => e.classList.remove('show'));
+  document.querySelectorAll('input.err, select.err').forEach(e => e.classList.remove('err'));
+}
+
+function showErr(fieldId, msgId) {
+  const f = document.getElementById(fieldId);
+  const m = document.getElementById(msgId);
+  if (f) f.classList.add('err');
+  if (m) m.classList.add('show');
+}
+
+function validateStep(n) {
+  clearErrors();
+  let ok = true;
+
+  if (n === 1) {
+    const name   = document.getElementById('name').value.trim();
+    const age    = parseInt(document.getElementById('age').value);
+    const weight = parseFloat(document.getElementById('weight').value);
+    const height = parseInt(document.getElementById('height').value);
+
+    if (!name)                          { showErr('name',   'err-name');   ok = false; }
+    if (isNaN(age)||age<12||age>100)    { showErr('age',    'err-age');    ok = false; }
+    if (isNaN(weight)||weight<30)       { showErr('weight', 'err-weight'); ok = false; }
+    if (isNaN(height)||height<100||height>250) { showErr('height','err-height'); ok = false; }
+
+    if (ok) saveStep1();
+  }
+
+  if (n === 2) {
+    const lp   = document.getElementById('last-period').value;
+    const cd   = parseInt(document.getElementById('cycle-duration').value);
+
+    if (!lp)                      { showErr('last-period',    'err-last-period'); ok = false; }
+    if (isNaN(cd)||cd<15||cd>60)  { showErr('cycle-duration', 'err-cycle');       ok = false; }
+
+    if (ok) saveStep2();
+  }
+
+  if (n === 3) {
+    if (state.draft.hasPartner === null) { showErr(null, 'err-partner');  ok = false; }
+    if (state.draft.hasPartner === true) {
+      const pn = document.getElementById('partner-name').value.trim();
+      if (!pn) { showErr('partner-name', 'err-partner-name'); ok = false; }
+    }
+    if (state.draft.hasChildren === null) { showErr(null, 'err-children'); ok = false; }
+    if (state.draft.hasChildren === true) {
+      const cc = document.getElementById('children-count').value;
+      if (!cc) { showErr('children-count', 'err-children-count'); ok = false; }
+      else {
+        const count = parseInt(cc);
+        for (let i = 1; i <= count; i++) {
+          const el = document.getElementById(`child-name-${i}`);
+          if (el && !el.value.trim()) { el.classList.add('err'); ok = false; }
+        }
+      }
+    }
+  }
+
+  return ok;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   TOGGLE BUTTONS (Sim / Não)
+══════════════════════════════════════════════════════════════ */
+function setToggle(key, value) {
+  if (key === 'partner') {
+    state.draft.hasPartner = value;
+    setToggleUI('partner', value);
+    if (!value) { state.draft.partnerName = ''; }
+  }
+  if (key === 'children') {
+    state.draft.hasChildren = value;
+    setToggleUI('children', value);
+    if (!value) { state.draft.childrenCount = ''; state.draft.childrenNames = []; }
+  }
+  clearErrors();
+  saveDraft();
+}
+
+function setToggleUI(key, value) {
+  const yes = document.getElementById(`${key}-yes`);
+  const no  = document.getElementById(`${key}-no`);
+  const rev = document.getElementById(`reveal-${key === 'partner' ? 'partner-name' : 'children'}`);
+
+  yes.classList.toggle('active-yes', value === true);
+  no.classList.toggle('active-no',   value === false);
+  if (rev) rev.classList.toggle('open', value === true);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   DYNAMIC CHILD NAME FIELDS
+══════════════════════════════════════════════════════════════ */
+function generateChildFields(restoring = false) {
+  const count = parseInt(document.getElementById('children-count').value) || 0;
+  state.draft.childrenCount = String(count);
+
+  const container = document.getElementById('children-names');
+  container.innerHTML = '';
+
+  for (let i = 1; i <= count; i++) {
+    const div = document.createElement('div');
+    div.className = 'field';
+    div.innerHTML = `
+      <label for="child-name-${i}">Nome do filho ${i}</label>
+      <input type="text" id="child-name-${i}" placeholder="Ex: Mateus" autocomplete="off" />
+    `;
+    container.appendChild(div);
+  }
+
+  // Restore saved names
+  if (restoring && state.draft.childrenNames.length) {
+    state.draft.childrenNames.forEach((name, idx) => {
+      const el = document.getElementById(`child-name-${idx + 1}`);
+      if (el && name) el.value = name;
+    });
+  }
+
+  if (!restoring) {
+    state.draft.childrenNames = new Array(count).fill('');
+    saveDraft();
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   SUCCESS SCREEN
+══════════════════════════════════════════════════════════════ */
+function showSuccessScreen(profile) {
+  const p = profile.userProfile;
+  const f = profile.familyStructure;
+
+  document.getElementById('success-name').textContent = p.name;
+
+  const nextPeriod = (() => {
+    if (!p.lastPeriodDate) return '—';
+    const d = new Date(p.lastPeriodDate);
+    d.setDate(d.getDate() + p.cycleDuration);
+    return d.toLocaleDateString('pt-PT', { day:'2-digit', month:'long' });
+  })();
+
+  const familyLine = (() => {
+    const parts = [];
+    if (f.hasPartner) parts.push(`👫 Parceiro: ${f.partnerName}`);
+    if (f.childrenCount > 0) {
+      const names = f.children.map(c => c.name || `Filho ${c.id}`).join(', ');
+      parts.push(`👶 ${f.childrenCount === 1 ? '1 filho' : f.childrenCount + ' filhos'}: ${names}`);
+    }
+    if (!parts.length) parts.push('Sem membros adicionados');
+    return parts.join('<br/>');
+  })();
+
+  document.getElementById('summary-card').innerHTML = `
+    <div style="font-weight:600;color:var(--rose);margin-bottom:.5rem;font-size:.8rem;text-transform:uppercase;letter-spacing:.05em;">Resumo do perfil</div>
+    👤 <strong>${p.name}</strong>, ${p.age} anos · ${p.weight} kg · ${p.height} cm<br/>
+    📅 Próx. período estimado: <strong>${nextPeriod}</strong> (ciclo de ${p.cycleDuration} dias)<br/>
+    <div style="height:1px;background:#E8E0EF;margin:.6rem 0"></div>
+    ${familyLine}
+  `;
+
+  showStep(4);
+
+  // Redirect countdown
+  setTimeout(() => {
+    const fill = document.getElementById('redirect-fill');
+    if (fill) fill.style.width = '100%';
+    setTimeout(goToDashboard, 3100);
+  }, 100);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   DASHBOARD STUB
+══════════════════════════════════════════════════════════════ */
+function goToDashboard() {
+  // In Submódulo 1.2 this will navigate to the real dashboard.
+  // For now, show a placeholder alert.
+  document.getElementById('step-success').innerHTML = `
+    <div class="success-icon" style="background:var(--lav-lt);font-size:1.6rem;">🏠</div>
+    <div class="success-title">Dashboard em construção</div>
+    <p class="success-msg">
+      O <strong>Submódulo 1.2</strong> (Dashboard Central) ainda não foi desenvolvido.<br/>
+      Os teus dados foram guardados com sucesso no armazenamento local.
+    </p>
+    <button class="btn-primary" onclick="resetAll()">Testar registo novamente</button>
+    <button class="btn-back" onclick="inspectData()">Inspecionar dados guardados</button>
+  `;
+}
+
+function inspectData() {
+  try {
+    const raw = localStorage.getItem(DB_KEY);
+    if (!raw) { alert('Nenhum perfil encontrado no localStorage.'); return; }
+    const parsed = JSON.parse(raw);
+    alert('📦 Dados guardados em maePrevProfile:\n\n' + JSON.stringify(parsed, null, 2));
+  } catch(e) { alert('Erro ao ler dados.'); }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   RESET
+══════════════════════════════════════════════════════════════ */
+function resetAll() {
+  resetState();
+  location.reload();
+}
+
+/* ══════════════════════════════════════════════════════════════
+   AUTO-SAVE on input changes
+══════════════════════════════════════════════════════════════ */
+function wireAutoSave() {
+  ['name','age','weight','height'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('input', () => { saveStep1(); });
+  });
+  ['last-period','cycle-duration'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('input', () => { saveStep2(); });
+  });
+  document.getElementById('partner-name')?.addEventListener('input', () => {
+    state.draft.partnerName = document.getElementById('partner-name').value.trim();
+    saveDraft();
+  });
+}
+
+/* ══════════════════════════════════════════════════════════════
+   INIT
+══════════════════════════════════════════════════════════════ */
+(function init() {
+  loadDraft();
+  restoreUI();
+  wireAutoSave();
+})();
+</script>
+</body>
+</html>
