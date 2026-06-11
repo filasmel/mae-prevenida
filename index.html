@@ -4,42 +4,39 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MãePrevenida — Criar Perfil</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
   <style>
     :root {
       --rose:    #C9848A;
       --rose-dk: #A8646A;
       --rose-lt: #F2E0E1;
-      --rose-bg: #FDF6F6;
       --lav:     #9B8EC4;
       --lav-lt:  #EAE6F5;
       --lav-dk:  #7B6EA4;
       --mint:    #7AADA0;
       --mint-lt: #DFF0EC;
+      --mint-dk: #5A8D80;
       --sand:    #F5EFE6;
+      --sand-dk: #EDE5D8;
       --ink:     #2D2638;
       --muted:   #8C8499;
     }
-
-    * { box-sizing: border-box; }
-
+    * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: 'DM Sans', sans-serif;
       background: var(--sand);
       color: var(--ink);
       min-height: 100vh;
-      margin: 0;
     }
 
-    .bg-blob {
-      position: fixed; border-radius: 50%; filter: blur(80px);
-      opacity: .35; pointer-events: none; z-index: 0;
-    }
+    /* ── Blobs ── */
+    .bg-blob { position: fixed; border-radius: 50%; filter: blur(80px); opacity: .35; pointer-events: none; z-index: 0; }
     .blob-1 { width: 360px; height: 360px; background: var(--rose-lt); top: -100px; left: -80px; }
     .blob-2 { width: 280px; height: 280px; background: var(--lav-lt); bottom: -60px; right: -60px; }
     .blob-3 { width: 200px; height: 200px; background: var(--mint-lt); top: 40%; left: 50%; transform: translateX(-50%); }
 
+    /* ── Card ── */
     #app-card {
       position: relative; z-index: 1;
       background: rgba(255,255,255,.82);
@@ -52,174 +49,103 @@
       padding: 2.5rem 2rem;
     }
 
-    .brand-title {
-      font-family: 'DM Serif Display', serif;
-      font-size: 1.75rem;
-      color: var(--rose);
-      letter-spacing: -.5px;
-      line-height: 1;
-    }
+    /* ── Brand ── */
+    .brand-wrap { display: flex; align-items: center; gap: .75rem; }
+    .brand-icon { width: 38px; height: 38px; border-radius: 12px; background: linear-gradient(135deg,var(--rose),var(--lav)); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0; }
+    .brand-title { font-family: 'DM Serif Display', serif; font-size: 1.75rem; color: var(--rose); letter-spacing: -.5px; line-height: 1; }
     .brand-sub { font-size: .8rem; color: var(--muted); letter-spacing: .06em; text-transform: uppercase; margin-top: 2px; }
 
-    .progress-track {
-      height: 4px; background: var(--rose-lt); border-radius: 99px; margin: 1.6rem 0 .5rem;
-    }
-    .progress-fill {
-      height: 100%; border-radius: 99px;
-      background: linear-gradient(90deg, var(--rose), var(--lav));
-      transition: width .45s cubic-bezier(.4,0,.2,1);
-    }
+    /* ── Progress ── */
+    .progress-track { height: 4px; background: var(--rose-lt); border-radius: 99px; margin: 1.6rem 0 .5rem; }
+    .progress-fill { height: 100%; border-radius: 99px; background: linear-gradient(90deg,var(--rose),var(--lav)); transition: width .45s cubic-bezier(.4,0,.2,1); }
     .step-label { font-size: .72rem; color: var(--muted); letter-spacing: .04em; text-transform: uppercase; }
 
-    .step-title {
-      font-family: 'DM Serif Display', serif;
-      font-size: 1.35rem; color: var(--ink);
-      margin: 1.2rem 0 .3rem;
-    }
+    /* ── Step titles ── */
+    .step-title { font-family: 'DM Serif Display', serif; font-size: 1.35rem; color: var(--ink); margin: 1.2rem 0 .3rem; }
     .step-desc { font-size: .85rem; color: var(--muted); margin-bottom: 1.4rem; line-height: 1.55; }
 
+    /* ── Fields ── */
     .field { margin-bottom: 1rem; }
     label { font-size: .78rem; font-weight: 600; color: var(--ink); letter-spacing: .02em; display: block; margin-bottom: .35rem; }
-
-    input[type="text"],
-    input[type="number"],
-    input[type="date"],
-    select {
-      width: 100%;
-      padding: .7rem 1rem;
-      border: 1.5px solid #E8E0EF;
-      border-radius: 12px;
-      background: white;
-      font-family: 'DM Sans', sans-serif;
-      font-size: .9rem;
-      color: var(--ink);
-      outline: none;
-      transition: border-color .2s, box-shadow .2s;
-      appearance: none;
+    input[type="text"], input[type="number"], input[type="date"], select, textarea {
+      width: 100%; padding: .7rem 1rem;
+      border: 1.5px solid #E8E0EF; border-radius: 12px;
+      background: white; font-family: 'DM Sans', sans-serif;
+      font-size: .9rem; color: var(--ink); outline: none;
+      transition: border-color .2s, box-shadow .2s; appearance: none;
     }
-    input:focus, select:focus {
-      border-color: var(--lav);
-      box-shadow: 0 0 0 3px rgba(155,142,196,.18);
-    }
+    input:focus, select:focus, textarea:focus { border-color: var(--lav); box-shadow: 0 0 0 3px rgba(155,142,196,.18); }
     input.err, select.err { border-color: var(--rose); }
     .err-msg { font-size: .72rem; color: var(--rose); margin-top: .3rem; display: none; }
     .err-msg.show { display: block; }
 
+    /* ── Toggle buttons ── */
     .toggle-group { display: flex; gap: .6rem; }
-    .toggle-btn {
-      flex: 1; padding: .65rem;
-      border: 1.5px solid #E8E0EF;
-      border-radius: 12px;
-      background: white;
-      font-family: 'DM Sans', sans-serif;
-      font-size: .88rem; font-weight: 500;
-      color: var(--muted);
-      cursor: pointer;
-      transition: all .18s;
-      text-align: center;
-    }
-    .toggle-btn.active-yes  { border-color: var(--mint); background: var(--mint-lt); color: var(--mint); }
-    .toggle-btn.active-no   { border-color: var(--rose); background: var(--rose-lt); color: var(--rose); }
+    .toggle-btn { flex: 1; padding: .65rem; border: 1.5px solid #E8E0EF; border-radius: 12px; background: white; font-family: 'DM Sans', sans-serif; font-size: .88rem; font-weight: 500; color: var(--muted); cursor: pointer; transition: all .18s; text-align: center; }
+    .toggle-btn.active-yes { border-color: var(--mint); background: var(--mint-lt); color: var(--mint); }
+    .toggle-btn.active-no  { border-color: var(--rose); background: var(--rose-lt); color: var(--rose); }
+    .toggle-btn.active-maybe { border-color: var(--lav); background: var(--lav-lt); color: var(--lav-dk); }
 
-    .reveal {
-      overflow: hidden;
-      max-height: 0;
-      opacity: 0;
-      transition: max-height .35s ease, opacity .3s ease, margin .3s ease;
-      margin-top: 0;
-    }
-    .reveal.open { max-height: 600px; opacity: 1; margin-top: .85rem; }
+    /* ── Reveal ── */
+    .reveal { overflow: hidden; max-height: 0; opacity: 0; transition: max-height .35s ease, opacity .3s ease, margin .3s ease; margin-top: 0; }
+    .reveal.open { max-height: 800px; opacity: 1; margin-top: .85rem; }
 
-    #children-names .field:last-child { margin-bottom: 0; }
-
-    .btn-primary {
-      width: 100%;
-      padding: .85rem;
-      border: none; border-radius: 14px;
-      background: linear-gradient(135deg, var(--rose) 0%, var(--lav) 100%);
-      color: white;
-      font-family: 'DM Sans', sans-serif;
-      font-size: .95rem; font-weight: 600;
-      cursor: pointer;
-      margin-top: 1.4rem;
-      letter-spacing: .02em;
-      box-shadow: 0 4px 18px rgba(201,132,138,.35);
-      transition: transform .15s, box-shadow .15s;
-    }
+    /* ── Buttons ── */
+    .btn-primary { width: 100%; padding: .85rem; border: none; border-radius: 14px; background: linear-gradient(135deg,var(--rose) 0%,var(--lav) 100%); color: white; font-family: 'DM Sans', sans-serif; font-size: .95rem; font-weight: 600; cursor: pointer; margin-top: 1.4rem; letter-spacing: .02em; box-shadow: 0 4px 18px rgba(201,132,138,.35); transition: transform .15s, box-shadow .15s; }
     .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(201,132,138,.42); }
-    .btn-primary:active { transform: translateY(0); }
-
-    .btn-back {
-      width: 100%; padding: .7rem;
-      border: 1.5px solid #E8E0EF;
-      border-radius: 14px;
-      background: white; color: var(--muted);
-      font-family: 'DM Sans', sans-serif;
-      font-size: .88rem; font-weight: 500;
-      cursor: pointer; margin-top: .6rem;
-      transition: border-color .18s, color .18s;
-    }
+    .btn-back { width: 100%; padding: .7rem; border: 1.5px solid #E8E0EF; border-radius: 14px; background: white; color: var(--muted); font-family: 'DM Sans', sans-serif; font-size: .88rem; font-weight: 500; cursor: pointer; margin-top: .6rem; transition: border-color .18s, color .18s; }
     .btn-back:hover { border-color: var(--lav); color: var(--lav); }
+    .btn-edit { padding: .45rem 1rem; border: 1.5px solid var(--lav); border-radius: 99px; background: white; color: var(--lav-dk); font-family: 'DM Sans', sans-serif; font-size: .75rem; font-weight: 600; cursor: pointer; transition: all .18s; }
+    .btn-edit:hover { background: var(--lav-lt); }
 
-    #step-success { text-align: center; padding: 1rem 0; }
-    .success-icon {
-      width: 72px; height: 72px; border-radius: 50%;
-      background: var(--mint-lt);
-      display: flex; align-items: center; justify-content: center;
-      margin: 0 auto 1.2rem;
-      font-size: 2rem;
-    }
-    .success-title {
-      font-family: 'DM Serif Display', serif;
-      font-size: 1.5rem; color: var(--ink); margin-bottom: .5rem;
-    }
-    .success-msg { font-size: .88rem; color: var(--muted); line-height: 1.6; margin-bottom: 1.4rem; }
-    .success-name { color: var(--rose); font-weight: 600; }
+    /* ── Goals ── */
+    .goals-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; margin-top: .2rem; }
+    .goal-btn { padding: .65rem .5rem; border: 1.5px solid #E8E0EF; border-radius: 12px; background: white; font-family: 'DM Sans', sans-serif; font-size: .82rem; font-weight: 500; color: var(--muted); cursor: pointer; transition: all .18s; text-align: center; }
+    .goal-btn.selected { border-color: var(--lav); background: var(--lav-lt); color: var(--lav-dk); font-weight: 600; }
 
-    .redirect-bar {
-      height: 4px; background: var(--rose-lt); border-radius: 99px; margin: 1rem 0 .4rem;
-    }
-    .redirect-fill {
-      height: 100%; width: 0; border-radius: 99px;
-      background: linear-gradient(90deg, var(--mint), var(--lav));
-      transition: width 3s linear;
-    }
-    .redirect-label { font-size: .72rem; color: var(--muted); text-align: center; }
-
-    .divider {
-      height: 1px; background: linear-gradient(90deg, transparent, #E8E0EF, transparent);
-      margin: 1.4rem 0;
-    }
+    /* ── Utility ── */
+    .divider { height: 1px; background: linear-gradient(90deg,transparent,#E8E0EF,transparent); margin: 1.4rem 0; }
     .inline-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; }
-
     .step { display: none; }
     .step.active { display: block; }
 
-    /* ── Goals grid ───────────────────────────────────────────── */
-    .goals-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: .6rem;
-      margin-top: .2rem;
+    /* ── Info box ── */
+    .info-box { background: var(--lav-lt); border: 1px solid rgba(155,142,196,.25); border-radius: 14px; padding: .85rem 1rem; font-size: .8rem; color: var(--lav-dk); line-height: 1.6; margin-top: .85rem; }
+    .info-box strong { display: block; margin-bottom: .3rem; font-size: .82rem; }
+
+    /* ── Possibly pregnant tips ── */
+    .tips-box { background: var(--rose-lt); border: 1px solid rgba(201,132,138,.2); border-radius: 14px; padding: .85rem 1rem; font-size: .8rem; color: var(--rose-dk); line-height: 1.7; margin-top: .85rem; }
+    .tips-box strong { display: block; margin-bottom: .4rem; }
+
+    /* ── Review screen ── */
+    .review-section { margin-bottom: 1rem; }
+    .review-label { font-size: .68rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-bottom: .5rem; }
+    .review-card { background: var(--sand); border-radius: 16px; padding: .9rem 1.1rem; font-size: .83rem; line-height: 1.9; color: var(--ink); display: flex; justify-content: space-between; align-items: flex-start; gap: .5rem; }
+    .review-card-content { flex: 1; }
+
+    /* ── Welcome screen ── */
+    #step-welcome {
+      text-align: center; padding: .5rem 0;
     }
-    .goal-btn {
-      padding: .65rem .5rem;
-      border: 1.5px solid #E8E0EF;
-      border-radius: 12px;
-      background: white;
-      font-family: 'DM Sans', sans-serif;
-      font-size: .82rem; font-weight: 500;
-      color: var(--muted);
-      cursor: pointer;
-      transition: all .18s;
-      text-align: center;
+    .welcome-emoji-ring {
+      width: 80px; height: 80px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--rose-lt), var(--lav-lt));
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 1.2rem; font-size: 2.2rem;
+      animation: popIn .5s cubic-bezier(.4,0,.2,1) both;
     }
-    .goal-btn.selected {
-      border-color: var(--lav);
-      background: var(--lav-lt);
-      color: var(--lav-dk);
-      font-weight: 600;
-    }
+    @keyframes popIn { from { transform: scale(.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    .welcome-title { font-family: 'DM Serif Display', serif; font-size: 1.6rem; color: var(--ink); margin-bottom: .5rem; animation: fadeUp .5s .15s both; }
+    .welcome-sub { font-size: .88rem; color: var(--muted); line-height: 1.65; margin-bottom: 1.3rem; animation: fadeUp .5s .25s both; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+    .welcome-highlights { display: flex; flex-direction: column; gap: .55rem; margin-bottom: 1.4rem; animation: fadeUp .5s .35s both; }
+    .highlight-chip { display: flex; align-items: center; gap: .75rem; background: white; border: 1px solid rgba(155,142,196,.18); border-radius: 14px; padding: .65rem 1rem; font-size: .82rem; color: var(--ink); text-align: left; box-shadow: 0 2px 8px rgba(45,38,56,.04); }
+    .highlight-chip span:first-child { font-size: 1.2rem; flex-shrink: 0; }
+    .btn-enter { width: 100%; padding: .9rem; border: none; border-radius: 14px; background: linear-gradient(135deg,var(--mint) 0%,var(--lav) 100%); color: white; font-family: 'DM Sans', sans-serif; font-size: 1rem; font-weight: 600; cursor: pointer; letter-spacing: .02em; box-shadow: 0 4px 18px rgba(122,173,160,.35); transition: transform .15s, box-shadow .15s; animation: fadeUp .5s .45s both; }
+    .btn-enter:hover { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(122,173,160,.42); }
+
+    /* ── Cycle date row ── */
+    .cycle-dates-grid { display: flex; flex-direction: column; gap: .6rem; }
 
     @media (max-width: 500px) {
       #app-card { border-radius: 0; min-height: 100vh; padding: 2rem 1.4rem; }
@@ -227,7 +153,7 @@
     }
   </style>
 </head>
-<body class="flex items-start justify-center px-4 py-10 min-h-screen">
+<body style="display:flex;align-items:flex-start;justify-content:center;padding:2.5rem 1rem;min-height:100vh;">
 
   <div class="bg-blob blob-1"></div>
   <div class="bg-blob blob-2"></div>
@@ -236,78 +162,134 @@
   <div id="app-card">
 
     <!-- Brand -->
-    <div class="flex items-center gap-3">
-      <div style="width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,var(--rose),var(--lav));display:flex;align-items:center;justify-content:center;font-size:1.2rem;">🌸</div>
+    <div class="brand-wrap">
+      <div class="brand-icon">🌸</div>
       <div>
         <div class="brand-title">MãePrevenida</div>
         <div class="brand-sub">Saúde & Família</div>
       </div>
     </div>
 
-    <!-- Progress -->
+    <!-- Progress bar -->
     <div id="progress-section">
       <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:20%"></div></div>
       <div class="step-label" id="step-label">Passo 1 de 4</div>
     </div>
 
-    <!-- PASSO 1 — Dados Básicos -->
+    <!-- ═══════════════════════════════ PASSO 1 — Dados Básicos ═══ -->
     <div class="step active" id="step-1">
       <div class="step-title">Olá! Vamos começar 👋</div>
       <p class="step-desc">Conta-nos um pouco sobre ti para personalizar a tua experiência.</p>
 
       <div class="field">
-        <label for="name">O teu nome</label>
-        <input type="text" id="name" placeholder="Ex: Ana Beatriz" autocomplete="off" />
+        <label for="name">O teu nome completo</label>
+        <input type="text" id="name" placeholder="Ex: Ana Beatriz Silva" autocomplete="off" />
         <div class="err-msg" id="err-name">Por favor, indica o teu nome.</div>
       </div>
 
+      <div class="field">
+        <label for="birthdate">Data de nascimento</label>
+        <input type="date" id="birthdate" />
+        <div class="err-msg" id="err-birthdate">Deves ter pelo menos 14 anos para te registares.</div>
+      </div>
+
       <div class="inline-grid-2">
-        <div class="field">
-          <label for="age">Idade</label>
-          <input type="number" id="age" placeholder="Ex: 30" min="12" max="100" />
-          <div class="err-msg" id="err-age">Idade inválida (12–100).</div>
-        </div>
         <div class="field">
           <label for="weight">Peso (kg)</label>
           <input type="number" id="weight" placeholder="Ex: 65" min="30" max="300" step="0.1" />
           <div class="err-msg" id="err-weight">Indica um peso válido.</div>
         </div>
-      </div>
-
-      <div class="field">
-        <label for="height">Altura (cm)</label>
-        <input type="number" id="height" placeholder="Ex: 165" min="100" max="250" />
-        <div class="err-msg" id="err-height">Indica uma altura válida (100–250 cm).</div>
+        <div class="field">
+          <label for="height">Altura (cm)</label>
+          <input type="number" id="height" placeholder="Ex: 165" min="100" max="250" />
+          <div class="err-msg" id="err-height">Altura inválida.</div>
+        </div>
       </div>
 
       <button class="btn-primary" onclick="goToStep(2)">Continuar →</button>
     </div>
 
-    <!-- PASSO 2 — Saúde da Mulher -->
+    <!-- ═══════════════════════════════ PASSO 2 — Ciclo Menstrual ═══ -->
     <div class="step" id="step-2">
-      <div class="step-title">A tua saúde, <span id="display-name"></span> 🌸</div>
-      <p class="step-desc">Estas informações ajudam-nos a prever o teu ciclo e enviar alertas no momento certo.</p>
+      <div class="step-title">O teu ciclo, <span id="display-name"></span> 🌸</div>
+      <p class="step-desc">Esta informação ajuda-nos a prever o teu ciclo com precisão.</p>
 
       <div class="field">
-        <label for="last-period">Data do último período menstrual</label>
-        <input type="date" id="last-period" />
-        <div class="err-msg" id="err-last-period">Por favor, seleciona uma data.</div>
+        <label>O teu ciclo menstrual é...</label>
+        <div class="toggle-group">
+          <button class="toggle-btn" id="cycle-regular-btn"   onclick="setCycleType('regular')">🗓 Regular</button>
+          <button class="toggle-btn" id="cycle-irregular-btn" onclick="setCycleType('irregular')">🔀 Irregular</button>
+        </div>
+        <div class="err-msg" id="err-cycle-type">Por favor, seleciona uma opção.</div>
       </div>
 
-      <div class="field">
-        <label for="cycle-duration">Duração média do ciclo (dias)</label>
-        <input type="number" id="cycle-duration" placeholder="Ex: 28" min="15" max="60" value="28" />
-        <div class="err-msg" id="err-cycle">Indica um valor entre 15 e 60 dias.</div>
+      <!-- REGULAR -->
+      <div class="reveal" id="reveal-regular">
+        <div class="field">
+          <label for="last-period">Data do último período</label>
+          <input type="date" id="last-period" />
+          <div class="err-msg" id="err-last-period">Por favor, seleciona uma data.</div>
+        </div>
+        <div class="field">
+          <label for="cycle-duration">Duração média do ciclo (dias)</label>
+          <input type="number" id="cycle-duration" placeholder="Ex: 28" min="15" max="60" value="28" />
+          <div class="err-msg" id="err-cycle-duration">Indica um valor entre 15 e 60 dias.</div>
+        </div>
+      </div>
+
+      <!-- IRREGULAR -->
+      <div class="reveal" id="reveal-irregular">
+        <div class="field">
+          <label>Lembras-te das datas dos últimos períodos?</label>
+          <div class="toggle-group">
+            <button class="toggle-btn" id="irr-dates-yes" onclick="setIrregularMode('dates')">Sim, lembro</button>
+            <button class="toggle-btn" id="irr-dates-no"  onclick="setIrregularMode('track')">Não me recordo</button>
+          </div>
+        </div>
+
+        <!-- Irregular com datas -->
+        <div class="reveal" id="reveal-irr-dates">
+          <p style="font-size:.78rem;color:var(--muted);margin-bottom:.8rem;">Indica as datas das tuas últimas 3 menstruações (do mais recente para o mais antigo).</p>
+          <div class="cycle-dates-grid">
+            <div class="field">
+              <label for="irr-date-1">1.ª menstruação (mais recente)</label>
+              <input type="date" id="irr-date-1" />
+            </div>
+            <div class="field">
+              <label for="irr-date-2">2.ª menstruação</label>
+              <input type="date" id="irr-date-2" />
+            </div>
+            <div class="field">
+              <label for="irr-date-3">3.ª menstruação (mais antiga)</label>
+              <input type="date" id="irr-date-3" />
+            </div>
+          </div>
+          <div class="info-box" id="irr-calc-result" style="display:none;"></div>
+          <div class="err-msg" id="err-irr-dates">Preenche pelo menos as duas primeiras datas.</div>
+        </div>
+
+        <!-- Irregular sem datas -->
+        <div class="reveal" id="reveal-irr-track">
+          <div class="info-box">
+            <strong>📊 O app vai aprender o teu ciclo</strong>
+            Sem problema! A partir de hoje o app vai registar os teus períodos. Após 3 ciclos, calculamos automaticamente o teu padrão e as previsões ficam cada vez mais precisas.
+          </div>
+          <div class="field" style="margin-top:.85rem;">
+            <label for="irr-track-start">Estás no período agora, ou qual foi a última data aproximada?</label>
+            <input type="date" id="irr-track-start" />
+            <div class="err-msg" id="err-irr-track">Por favor, indica uma data.</div>
+          </div>
+        </div>
       </div>
 
       <button class="btn-primary" onclick="goToStep(3)">Continuar →</button>
       <button class="btn-back" onclick="goToStep(1)">← Voltar</button>
     </div>
 
-    <!-- PASSO 3 — Estrutura Familiar -->
+    <!-- ═══════════════════════════════ PASSO 3 — Família ═══ -->
     <div class="step" id="step-3">
       <div class="step-title">A tua família 💕</div>
-      <p class="step-desc">Vamos preparar o teu espaço familiar. Podes sempre alterar mais tarde.</p>
+      <p class="step-desc">Vamos preparar o teu espaço familiar. Podes alterar a qualquer momento.</p>
 
       <div class="field">
         <label>Tens marido ou parceiro?</label>
@@ -317,12 +299,11 @@
         </div>
         <div class="err-msg" id="err-partner">Por favor, seleciona uma opção.</div>
       </div>
-
       <div class="reveal" id="reveal-partner-name">
         <div class="field" style="margin-bottom:0">
           <label for="partner-name">Nome do teu parceiro</label>
           <input type="text" id="partner-name" placeholder="Ex: João Miguel" autocomplete="off" />
-          <div class="err-msg" id="err-partner-name">Por favor, indica o nome do teu parceiro.</div>
+          <div class="err-msg" id="err-partner-name">Por favor, indica o nome.</div>
         </div>
       </div>
 
@@ -336,7 +317,6 @@
         </div>
         <div class="err-msg" id="err-children">Por favor, seleciona uma opção.</div>
       </div>
-
       <div class="reveal" id="reveal-children">
         <div class="field">
           <label for="children-count">Quantos filhos tens?</label>
@@ -357,16 +337,17 @@
       <button class="btn-back" onclick="goToStep(2)">← Voltar</button>
     </div>
 
-    <!-- PASSO 4 — Saúde & Objetivos -->
+    <!-- ═══════════════════════════════ PASSO 4 — Saúde & Objetivos ═══ -->
     <div class="step" id="step-4">
       <div class="step-title">Saúde & Objetivos 🌿</div>
-      <p class="step-desc">Ajuda-nos a personalizar o app para as tuas necessidades reais.</p>
+      <p class="step-desc">Ajuda-nos a personalizar o app para as tuas necessidades.</p>
 
       <div class="field">
-        <label>Estás grávida atualmente?</label>
-        <div class="toggle-group">
-          <button class="toggle-btn" id="pregnant-yes" onclick="setToggle('pregnant', true)">Sim</button>
-          <button class="toggle-btn" id="pregnant-no"  onclick="setToggle('pregnant', false)">Não</button>
+        <label>Estás grávida?</label>
+        <div class="toggle-group" style="flex-wrap:wrap;">
+          <button class="toggle-btn" id="pregnant-yes"   onclick="setToggle('pregnant','yes')"   style="flex:1;min-width:80px;">✅ Sim</button>
+          <button class="toggle-btn" id="pregnant-no"    onclick="setToggle('pregnant','no')"    style="flex:1;min-width:80px;">❌ Não</button>
+          <button class="toggle-btn" id="pregnant-maybe" onclick="setToggle('pregnant','maybe')" style="flex:1;min-width:80px;">🤔 Possivelmente</button>
         </div>
         <div class="err-msg" id="err-pregnant">Por favor, seleciona uma opção.</div>
       </div>
@@ -375,22 +356,35 @@
         <div class="field" style="margin-bottom:0">
           <label for="pregnancy-weeks">Quantas semanas de gravidez?</label>
           <input type="number" id="pregnancy-weeks" placeholder="Ex: 12" min="1" max="42" />
-          <div class="err-msg" id="err-pregnancy-weeks">Indica um valor entre 1 e 42 semanas.</div>
+          <div class="err-msg" id="err-pregnancy-weeks">Indica entre 1 e 42 semanas.</div>
+        </div>
+      </div>
+
+      <div class="reveal" id="reveal-pregnancy-maybe">
+        <div class="tips-box">
+          <strong>🌸 Sinais que podem indicar gravidez:</strong>
+          • Atraso menstrual de mais de 5 dias<br/>
+          • Náuseas, especialmente de manhã<br/>
+          • Seios sensíveis ou inchados<br/>
+          • Cansaço fora do normal<br/>
+          • Vontade frequente de urinar<br/><br/>
+          <strong style="color:var(--rose-dk);">💊 O que fazer agora:</strong><br/>
+          Faz um teste de gravidez (farmácia) e consulta o teu médico. Até confirmares, evita medicamentos sem prescrição, álcool e cafeína em excesso.
         </div>
       </div>
 
       <div class="divider"></div>
 
       <div class="field">
-        <label for="health-conditions">Tens alguma condição de saúde crónica?</label>
-        <input type="text" id="health-conditions" placeholder="Ex: Diabetes tipo 2, Hipertensão (ou deixa vazio)" autocomplete="off" />
+        <label for="health-conditions">Condição de saúde crónica? <span style="font-weight:400;color:var(--muted)">(opcional)</span></label>
+        <input type="text" id="health-conditions" placeholder="Ex: Diabetes tipo 2, Hipertensão..." autocomplete="off" />
       </div>
 
       <div class="divider"></div>
 
       <div class="field">
-        <label>Quais os teus objetivos no app? <span style="font-weight:400;color:var(--muted)">(escolhe os que quiseres)</span></label>
-        <div class="goals-grid" id="goals-grid">
+        <label>Os teus objetivos no app <span style="font-weight:400;color:var(--muted)">(escolhe os que quiseres)</span></label>
+        <div class="goals-grid">
           <button class="goal-btn" data-goal="ciclo"    onclick="toggleGoal(this)">🌙 Ciclo Menstrual</button>
           <button class="goal-btn" data-goal="gravidez" onclick="toggleGoal(this)">🤰 Gravidez</button>
           <button class="goal-btn" data-goal="familia"  onclick="toggleGoal(this)">👨‍👩‍👧 Saúde Familiar</button>
@@ -401,456 +395,615 @@
         <div class="err-msg" id="err-goals">Seleciona pelo menos um objetivo.</div>
       </div>
 
-      <button class="btn-primary" onclick="goToStep(5)">Guardar e Continuar →</button>
+      <button class="btn-primary" onclick="goToStep(5)">Rever e Confirmar →</button>
       <button class="btn-back" onclick="goToStep(3)">← Voltar</button>
     </div>
 
-    <!-- PASSO 5 — Sucesso -->
-    <div class="step" id="step-success">
-      <div class="success-icon">✅</div>
-      <div class="success-title">Perfil criado com sucesso!</div>
-      <p class="success-msg">
-        Bem-vinda ao <strong>MãePrevenida</strong>, <span class="success-name" id="success-name"></span>!<br/>
-        O teu espaço de saúde e bem-estar está pronto.
-      </p>
+    <!-- ═══════════════════════════════ PASSO 5 — REVISÃO ═══ -->
+    <div class="step" id="step-5">
+      <div class="step-title">Revê o teu perfil 👀</div>
+      <p class="step-desc">Confirma que está tudo certo antes de entrar. Podes editar qualquer secção.</p>
 
-      <div id="summary-card" style="background:var(--sand);border-radius:16px;padding:1rem 1.2rem;text-align:left;font-size:.83rem;line-height:1.9;color:var(--ink);">
+      <div class="review-section">
+        <div class="review-label">Dados pessoais</div>
+        <div class="review-card">
+          <div class="review-card-content" id="review-personal"></div>
+          <button class="btn-edit" onclick="goToStep(1)">Editar</button>
+        </div>
       </div>
 
-      <div style="margin-top:1.4rem;">
-        <div class="redirect-bar"><div class="redirect-fill" id="redirect-fill"></div></div>
-        <div class="redirect-label">A redirecionar para o Dashboard…</div>
+      <div class="review-section">
+        <div class="review-label">Ciclo menstrual</div>
+        <div class="review-card">
+          <div class="review-card-content" id="review-cycle"></div>
+          <button class="btn-edit" onclick="goToStep(2)">Editar</button>
+        </div>
       </div>
 
-      <button class="btn-primary" onclick="goToDashboard()" style="margin-top:1rem;">
-        Ir para o Dashboard agora →
-      </button>
-      <button class="btn-back" onclick="resetAll()" style="margin-top:.5rem;">Recomeçar registo</button>
+      <div class="review-section">
+        <div class="review-label">Família</div>
+        <div class="review-card">
+          <div class="review-card-content" id="review-family"></div>
+          <button class="btn-edit" onclick="goToStep(3)">Editar</button>
+        </div>
+      </div>
+
+      <div class="review-section">
+        <div class="review-label">Saúde & Objetivos</div>
+        <div class="review-card">
+          <div class="review-card-content" id="review-health"></div>
+          <button class="btn-edit" onclick="goToStep(4)">Editar</button>
+        </div>
+      </div>
+
+      <button class="btn-primary" onclick="confirmAndSave()">✅ Confirmar e Criar Perfil</button>
+      <button class="btn-back" onclick="goToStep(4)">← Voltar</button>
     </div>
 
-  </div>
+    <!-- ═══════════════════════════════ PASSO 6 — BEM-VINDA ═══ -->
+    <div class="step" id="step-welcome">
+      <div class="welcome-emoji-ring">🌸</div>
+      <div class="welcome-title" id="welcome-title">Bem-vinda!</div>
+      <p class="welcome-sub" id="welcome-sub"></p>
+      <div class="welcome-highlights" id="welcome-highlights"></div>
+      <button class="btn-enter" onclick="goToDashboard()">Entrar no meu espaço →</button>
+    </div>
 
-<script src="supabase.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-/* ══════════════════════════════════════════════════════════════
-   KEYS
-══════════════════════════════════════════════════════════════ */
-const LS_KEY = 'maePrevDraft';
-const DB_KEY = 'maePrevProfile';
+  </div><!-- /app-card -->
 
-/* ══════════════════════════════════════════════════════════════
-   STATE
-══════════════════════════════════════════════════════════════ */
-let state = {
-  currentStep: 1,
-  draft: {
-    name: '', age: '', weight: '', height: '',
-    lastPeriod: '', cycleDuration: 28,
-    hasPartner: null, partnerName: '',
-    hasChildren: null, childrenCount: '', childrenNames: [],
-    isPregnant: null, pregnancyWeeks: '',
-    healthConditions: '', goals: []
-  }
-};
+  <script src="supabase.js"></script>
+  <script>
+  /* ════════════════════════════════════════════════════════════
+     STATE
+  ════════════════════════════════════════════════════════════ */
+  const LS_KEY = 'maePrevDraft';
+  const DB_KEY = 'maePrevProfile';
 
-/* ══════════════════════════════════════════════════════════════
-   PERSISTENCE
-══════════════════════════════════════════════════════════════ */
-function saveDraft() {
-  try { localStorage.setItem(LS_KEY, JSON.stringify(state)); } catch(e) {}
-}
-function loadDraft() {
-  try {
-    const saved = localStorage.getItem(LS_KEY);
-    if (saved) state = JSON.parse(saved);
-  } catch(e) { resetState(); }
-}
-function resetState() {
-  localStorage.removeItem(LS_KEY);
-  localStorage.removeItem(DB_KEY);
-  state = {
+  let state = {
     currentStep: 1,
     draft: {
-      name:'', age:'', weight:'', height:'',
-      lastPeriod:'', cycleDuration:28,
-      hasPartner:null, partnerName:'',
-      hasChildren:null, childrenCount:'', childrenNames:[],
-      isPregnant:null, pregnancyWeeks:'',
+      name:'', birthdate:'', weight:'', height:'',
+      cycleType: null,
+      lastPeriod:'', cycleDuration: 28,
+      irregularMode: null,
+      irrDate1:'', irrDate2:'', irrDate3:'',
+      irrTrackStart:'', irrAvgCycle: null,
+      hasPartner: null, partnerName:'',
+      hasChildren: null, childrenCount:'', childrenNames:[],
+      pregnantStatus: null, pregnancyWeeks:'',
       healthConditions:'', goals:[]
     }
   };
-}
 
-async function commitProfile() {
-  const d = state.draft;
-  const profile = {
-    userProfile: {
-      name: d.name, age: Number(d.age),
-      weight: Number(d.weight), height: Number(d.height),
-      lastPeriodDate: d.lastPeriod, cycleDuration: Number(d.cycleDuration),
-      isPregnant: d.isPregnant, pregnancyWeeks: d.isPregnant ? Number(d.pregnancyWeeks) : null,
-      healthConditions: d.healthConditions || null,
-      goals: d.goals
-    },
-    familyStructure: {
-      hasPartner: d.hasPartner,
-      partnerName: d.hasPartner ? d.partnerName : null,
-      childrenCount: d.hasChildren ? Number(d.childrenCount) : 0,
-      children: d.hasChildren ? d.childrenNames.map((n,i) => ({id:i+1, name:n})) : []
-    },
-    createdAt: new Date().toISOString()
-  };
-
-  // Save to localStorage (fallback)
-  try { localStorage.setItem(DB_KEY, JSON.stringify(profile)); } catch(e) {}
-
-  // Save to Supabase
-  try {
-    const { error } = await db.from('profiles').insert([{
-      name:              d.name,
-      age:               Number(d.age),
-      weight:            Number(d.weight),
-      height:            Number(d.height),
-      last_period_date:  d.lastPeriod,
-      cycle_duration:    Number(d.cycleDuration),
-      has_partner:       d.hasPartner,
-      partner_name:      d.hasPartner ? d.partnerName : null,
-      children_count:    d.hasChildren ? Number(d.childrenCount) : 0,
-      children:          d.hasChildren ? d.childrenNames.map((n,i) => ({id:i+1,name:n})) : [],
-      is_pregnant:       d.isPregnant,
-      pregnancy_weeks:   d.isPregnant ? Number(d.pregnancyWeeks) : null,
-      health_conditions: d.healthConditions || null,
-      goals:             d.goals
-    }]);
-    if (error) console.warn('Supabase insert error:', error.message);
-  } catch(e) { console.warn('Supabase unavailable, using localStorage only.'); }
-
-  return profile;
-}
-
-/* ══════════════════════════════════════════════════════════════
-   RESTORE UI
-══════════════════════════════════════════════════════════════ */
-function restoreUI() {
-  const d = state.draft;
-
-  setVal('name', d.name); setVal('age', d.age);
-  setVal('weight', d.weight); setVal('height', d.height);
-  setVal('last-period', d.lastPeriod); setVal('cycle-duration', d.cycleDuration);
-
-  if (d.hasPartner !== null) {
-    setToggleUI('partner', d.hasPartner);
-    if (d.hasPartner) setVal('partner-name', d.partnerName);
+  /* ════════════════════════════════════════════════════════════
+     PERSISTENCE
+  ════════════════════════════════════════════════════════════ */
+  function saveDraft() {
+    try { localStorage.setItem(LS_KEY, JSON.stringify(state)); } catch(e) {}
   }
-  if (d.hasChildren !== null) {
-    setToggleUI('children', d.hasChildren);
-    if (d.hasChildren && d.childrenCount) {
-      setVal('children-count', d.childrenCount);
-      generateChildFields(true);
-    }
+  function loadDraft() {
+    try {
+      const s = localStorage.getItem(LS_KEY);
+      if (s) state = JSON.parse(s);
+    } catch(e) { resetState(); }
   }
-  if (d.isPregnant !== null && d.isPregnant !== undefined) {
-    setToggleUI('pregnant', d.isPregnant);
-    if (d.isPregnant) setVal('pregnancy-weeks', d.pregnancyWeeks);
-  }
-  setVal('health-conditions', d.healthConditions);
-  if (d.goals && d.goals.length) {
-    d.goals.forEach(goal => {
-      const btn = document.querySelector(`.goal-btn[data-goal="${goal}"]`);
-      if (btn) btn.classList.add('selected');
-    });
-  }
-
-  showStep(state.currentStep);
-}
-
-function setVal(id, val) {
-  const el = document.getElementById(id);
-  if (el && val !== '' && val !== null && val !== undefined) el.value = val;
-}
-
-/* ══════════════════════════════════════════════════════════════
-   STEP NAVIGATION
-══════════════════════════════════════════════════════════════ */
-const STEPS    = [null, 'step-1', 'step-2', 'step-3', 'step-4', 'step-success'];
-const PROGRESS = [null, 20, 40, 60, 80, 100];
-
-function showStep(n) {
-  STEPS.forEach(id => { if (id) document.getElementById(id)?.classList.remove('active'); });
-  const target = STEPS[n];
-  if (!target) return;
-  document.getElementById(target).classList.add('active');
-
-  const isSuccess = (n === 5);
-  document.getElementById('progress-section').style.display = isSuccess ? 'none' : '';
-  if (!isSuccess) {
-    document.getElementById('progress-fill').style.width = PROGRESS[n] + '%';
-    document.getElementById('step-label').textContent = `Passo ${n} de 4`;
-  }
-
-  state.currentStep = n;
-  saveDraft();
-}
-
-async function goToStep(n) {
-  if (n > state.currentStep && !validateStep(state.currentStep)) return;
-
-  if (n === 2) document.getElementById('display-name').textContent = state.draft.name || '';
-
-  if (n === 5) {
-    saveStep4();
-    const profile = await commitProfile();
-    showSuccessScreen(profile);
+  function resetState() {
     localStorage.removeItem(LS_KEY);
-    return;
+    localStorage.removeItem(DB_KEY);
+    state = {
+      currentStep: 1,
+      draft: {
+        name:'', birthdate:'', weight:'', height:'',
+        cycleType:null, lastPeriod:'', cycleDuration:28,
+        irregularMode:null, irrDate1:'', irrDate2:'', irrDate3:'',
+        irrTrackStart:'', irrAvgCycle:null,
+        hasPartner:null, partnerName:'',
+        hasChildren:null, childrenCount:'', childrenNames:[],
+        pregnantStatus:null, pregnancyWeeks:'',
+        healthConditions:'', goals:[]
+      }
+    };
   }
 
-  saveCurrentStep(state.currentStep);
-  showStep(n);
-}
-
-/* ══════════════════════════════════════════════════════════════
-   SAVE STEPS
-══════════════════════════════════════════════════════════════ */
-function saveCurrentStep(n) {
-  if (n === 1) saveStep1();
-  if (n === 2) saveStep2();
-  if (n === 3) saveStep3();
-  if (n === 4) saveStep4();
-}
-
-function saveStep1() {
-  state.draft.name   = document.getElementById('name').value.trim();
-  state.draft.age    = document.getElementById('age').value;
-  state.draft.weight = document.getElementById('weight').value;
-  state.draft.height = document.getElementById('height').value;
-  saveDraft();
-}
-function saveStep2() {
-  state.draft.lastPeriod    = document.getElementById('last-period').value;
-  state.draft.cycleDuration = document.getElementById('cycle-duration').value || 28;
-  saveDraft();
-}
-function saveStep3() {
-  if (state.draft.hasPartner) {
-    state.draft.partnerName = document.getElementById('partner-name').value.trim();
+  /* ════════════════════════════════════════════════════════════
+     AGE CALCULATION
+  ════════════════════════════════════════════════════════════ */
+  function calcAge(birthdate) {
+    if (!birthdate) return null;
+    const today = new Date();
+    const bd    = new Date(birthdate);
+    let age = today.getFullYear() - bd.getFullYear();
+    const m = today.getMonth() - bd.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < bd.getDate())) age--;
+    return age;
   }
-  if (state.draft.hasChildren) {
-    state.draft.childrenCount = document.getElementById('children-count').value;
-    const count = parseInt(state.draft.childrenCount) || 0;
-    state.draft.childrenNames = [];
-    for (let i = 1; i <= count; i++) {
-      const el = document.getElementById(`child-name-${i}`);
-      state.draft.childrenNames.push(el ? el.value.trim() : '');
+
+  /* ════════════════════════════════════════════════════════════
+     IRREGULAR CYCLE CALCULATOR
+  ════════════════════════════════════════════════════════════ */
+  function calcIrregularAvg() {
+    const d1 = document.getElementById('irr-date-1').value;
+    const d2 = document.getElementById('irr-date-2').value;
+    const d3 = document.getElementById('irr-date-3').value;
+    if (!d1 || !d2) return null;
+
+    const gaps = [];
+    const dt1 = new Date(d1), dt2 = new Date(d2);
+    gaps.push(Math.abs(Math.round((dt1-dt2)/86400000)));
+    if (d3) {
+      const dt3 = new Date(d3);
+      gaps.push(Math.abs(Math.round((dt2-dt3)/86400000)));
     }
-  }
-  saveDraft();
-}
-function saveStep4() {
-  state.draft.pregnancyWeeks   = document.getElementById('pregnancy-weeks')?.value || '';
-  state.draft.healthConditions = document.getElementById('health-conditions').value.trim();
-  state.draft.goals            = [...document.querySelectorAll('.goal-btn.selected')].map(b => b.dataset.goal);
-  saveDraft();
-}
-function toggleGoal(btn) {
-  btn.classList.toggle('selected');
-  clearErrors();
-}
+    const avg = Math.round(gaps.reduce((a,b)=>a+b,0)/gaps.length);
 
-/* ══════════════════════════════════════════════════════════════
-   VALIDATION
-══════════════════════════════════════════════════════════════ */
-function clearErrors() {
-  document.querySelectorAll('.err-msg').forEach(e => e.classList.remove('show'));
-  document.querySelectorAll('input.err, select.err').forEach(e => e.classList.remove('err'));
-}
-function showErr(fieldId, msgId) {
-  if (fieldId) document.getElementById(fieldId)?.classList.add('err');
-  if (msgId)   document.getElementById(msgId)?.classList.add('show');
-}
-function validateStep(n) {
-  clearErrors();
-  let ok = true;
+    const box = document.getElementById('irr-calc-result');
+    box.style.display = 'block';
+    box.innerHTML = `<strong>📊 Ciclo médio calculado: ${avg} dias</strong>
+      O app vai usar este valor como base e afinar as previsões com o tempo.`;
 
-  if (n === 1) {
-    const name   = document.getElementById('name').value.trim();
-    const age    = parseInt(document.getElementById('age').value);
-    const weight = parseFloat(document.getElementById('weight').value);
-    const height = parseInt(document.getElementById('height').value);
-    if (!name)                                { showErr('name',   'err-name');   ok = false; }
-    if (isNaN(age)   || age<12  || age>100)   { showErr('age',    'err-age');    ok = false; }
-    if (isNaN(weight)|| weight<30)            { showErr('weight', 'err-weight'); ok = false; }
-    if (isNaN(height)|| height<100||height>250){ showErr('height','err-height'); ok = false; }
-    if (ok) saveStep1();
+    state.draft.irrAvgCycle = avg;
+    state.draft.lastPeriod  = d1;
+    saveDraft();
+    return avg;
   }
-  if (n === 2) {
-    const lp = document.getElementById('last-period').value;
-    const cd = parseInt(document.getElementById('cycle-duration').value);
-    if (!lp)                    { showErr('last-period',    'err-last-period'); ok = false; }
-    if (isNaN(cd)||cd<15||cd>60){ showErr('cycle-duration', 'err-cycle');       ok = false; }
-    if (ok) saveStep2();
+
+  /* ════════════════════════════════════════════════════════════
+     CYCLE TYPE
+  ════════════════════════════════════════════════════════════ */
+  function setCycleType(type) {
+    state.draft.cycleType = type;
+    document.getElementById('cycle-regular-btn').classList.toggle('active-yes', type==='regular');
+    document.getElementById('cycle-irregular-btn').classList.toggle('active-yes', type==='irregular');
+    document.getElementById('reveal-regular').classList.toggle('open', type==='regular');
+    document.getElementById('reveal-irregular').classList.toggle('open', type==='irregular');
+    clearErrors();
+    saveDraft();
   }
-  if (n === 3) {
-    if (state.draft.hasPartner === null)  { showErr(null, 'err-partner');  ok = false; }
-    if (state.draft.hasPartner === true) {
-      if (!document.getElementById('partner-name').value.trim()) { showErr('partner-name','err-partner-name'); ok = false; }
+
+  function setIrregularMode(mode) {
+    state.draft.irregularMode = mode;
+    document.getElementById('irr-dates-yes').classList.toggle('active-yes', mode==='dates');
+    document.getElementById('irr-dates-no').classList.toggle('active-yes',  mode==='track');
+    document.getElementById('reveal-irr-dates').classList.toggle('open', mode==='dates');
+    document.getElementById('reveal-irr-track').classList.toggle('open', mode==='track');
+    saveDraft();
+  }
+
+  /* ════════════════════════════════════════════════════════════
+     TOGGLE BUTTONS
+  ════════════════════════════════════════════════════════════ */
+  function setToggle(key, value) {
+    if (key === 'partner') {
+      state.draft.hasPartner = value;
+      document.getElementById('partner-yes').classList.toggle('active-yes', value===true);
+      document.getElementById('partner-no').classList.toggle('active-no',   value===false);
+      document.getElementById('reveal-partner-name').classList.toggle('open', value===true);
+      if (!value) state.draft.partnerName = '';
     }
-    if (state.draft.hasChildren === null) { showErr(null, 'err-children'); ok = false; }
-    if (state.draft.hasChildren === true) {
-      const cc = document.getElementById('children-count').value;
-      if (!cc) { showErr('children-count','err-children-count'); ok = false; }
-      else {
-        for (let i = 1; i <= parseInt(cc); i++) {
+    if (key === 'children') {
+      state.draft.hasChildren = value;
+      document.getElementById('children-yes').classList.toggle('active-yes', value===true);
+      document.getElementById('children-no').classList.toggle('active-no',   value===false);
+      document.getElementById('reveal-children').classList.toggle('open', value===true);
+      if (!value) { state.draft.childrenCount=''; state.draft.childrenNames=[]; }
+    }
+    if (key === 'pregnant') {
+      state.draft.pregnantStatus = value;
+      ['yes','no','maybe'].forEach(v => {
+        const btn = document.getElementById(`pregnant-${v}`);
+        btn.classList.remove('active-yes','active-no','active-maybe');
+      });
+      const cls = value==='yes'?'active-yes':value==='no'?'active-no':'active-maybe';
+      document.getElementById(`pregnant-${value}`).classList.add(cls);
+      document.getElementById('reveal-pregnancy-weeks').classList.toggle('open', value==='yes');
+      document.getElementById('reveal-pregnancy-maybe').classList.toggle('open', value==='maybe');
+      if (value !== 'yes') state.draft.pregnancyWeeks = '';
+    }
+    clearErrors();
+    saveDraft();
+  }
+
+  function toggleGoal(btn) {
+    btn.classList.toggle('selected');
+    clearErrors();
+    state.draft.goals = [...document.querySelectorAll('.goal-btn.selected')].map(b=>b.dataset.goal);
+    saveDraft();
+  }
+
+  /* ════════════════════════════════════════════════════════════
+     CHILD FIELDS
+  ════════════════════════════════════════════════════════════ */
+  function generateChildFields(restoring=false) {
+    const count = parseInt(document.getElementById('children-count').value)||0;
+    state.draft.childrenCount = String(count);
+    const container = document.getElementById('children-names');
+    container.innerHTML = '';
+    for (let i=1; i<=count; i++) {
+      const div = document.createElement('div');
+      div.className = 'field';
+      div.innerHTML = `<label for="child-name-${i}">Nome do filho ${i}</label>
+        <input type="text" id="child-name-${i}" placeholder="Ex: Mateus" autocomplete="off" />`;
+      container.appendChild(div);
+    }
+    if (restoring && state.draft.childrenNames.length) {
+      state.draft.childrenNames.forEach((n,i)=>{
+        const el = document.getElementById(`child-name-${i+1}`);
+        if (el && n) el.value = n;
+      });
+    }
+    if (!restoring) { state.draft.childrenNames = new Array(count).fill(''); saveDraft(); }
+  }
+
+  /* ════════════════════════════════════════════════════════════
+     SAVE STEPS
+  ════════════════════════════════════════════════════════════ */
+  function saveCurrentStep(n) {
+    const d = state.draft;
+    if (n===1) {
+      d.name      = document.getElementById('name').value.trim();
+      d.birthdate = document.getElementById('birthdate').value;
+      d.weight    = document.getElementById('weight').value;
+      d.height    = document.getElementById('height').value;
+    }
+    if (n===2) {
+      if (d.cycleType==='regular') {
+        d.lastPeriod    = document.getElementById('last-period').value;
+        d.cycleDuration = document.getElementById('cycle-duration').value||28;
+      }
+      if (d.cycleType==='irregular' && d.irregularMode==='dates') {
+        d.irrDate1 = document.getElementById('irr-date-1').value;
+        d.irrDate2 = document.getElementById('irr-date-2').value;
+        d.irrDate3 = document.getElementById('irr-date-3').value;
+        calcIrregularAvg();
+        d.cycleDuration = d.irrAvgCycle || 28;
+      }
+      if (d.cycleType==='irregular' && d.irregularMode==='track') {
+        d.irrTrackStart = document.getElementById('irr-track-start').value;
+        d.lastPeriod    = d.irrTrackStart;
+        d.cycleDuration = 28; // default até termos dados reais
+      }
+    }
+    if (n===3) {
+      if (d.hasPartner)  d.partnerName = document.getElementById('partner-name').value.trim();
+      if (d.hasChildren) {
+        d.childrenCount = document.getElementById('children-count').value;
+        const count = parseInt(d.childrenCount)||0;
+        d.childrenNames = [];
+        for (let i=1;i<=count;i++) {
           const el = document.getElementById(`child-name-${i}`);
-          if (el && !el.value.trim()) { el.classList.add('err'); ok = false; }
+          d.childrenNames.push(el?el.value.trim():'');
         }
       }
     }
-  }
-  if (n === 4) {
-    if (state.draft.isPregnant === null) { showErr(null,'err-pregnant'); ok = false; }
-    if (state.draft.isPregnant === true) {
-      const pw = parseInt(document.getElementById('pregnancy-weeks').value);
-      if (isNaN(pw)||pw<1||pw>42) { showErr('pregnancy-weeks','err-pregnancy-weeks'); ok = false; }
+    if (n===4) {
+      if (d.pregnantStatus==='yes') d.pregnancyWeeks = document.getElementById('pregnancy-weeks').value;
+      d.healthConditions = document.getElementById('health-conditions').value.trim();
+      d.goals = [...document.querySelectorAll('.goal-btn.selected')].map(b=>b.dataset.goal);
     }
-    if (!document.querySelectorAll('.goal-btn.selected').length) { showErr(null,'err-goals'); ok = false; }
-    if (ok) saveStep4();
+    saveDraft();
   }
 
-  return ok;
-}
-
-/* ══════════════════════════════════════════════════════════════
-   TOGGLES
-══════════════════════════════════════════════════════════════ */
-function setToggle(key, value) {
-  if (key === 'partner')  { state.draft.hasPartner  = value; if (!value) state.draft.partnerName = ''; }
-  if (key === 'children') { state.draft.hasChildren = value; if (!value) { state.draft.childrenCount=''; state.draft.childrenNames=[]; } }
-  if (key === 'pregnant') { state.draft.isPregnant  = value; if (!value) state.draft.pregnancyWeeks = ''; }
-  setToggleUI(key, value);
-  clearErrors();
-  saveDraft();
-}
-function setToggleUI(key, value) {
-  const yes = document.getElementById(`${key}-yes`);
-  const no  = document.getElementById(`${key}-no`);
-  const revMap = { partner:'reveal-partner-name', children:'reveal-children', pregnant:'reveal-pregnancy-weeks' };
-  const rev = document.getElementById(revMap[key]);
-  yes?.classList.toggle('active-yes', value === true);
-  no?.classList.toggle('active-no',   value === false);
-  rev?.classList.toggle('open',       value === true);
-}
-
-/* ══════════════════════════════════════════════════════════════
-   CHILD FIELDS
-══════════════════════════════════════════════════════════════ */
-function generateChildFields(restoring = false) {
-  const count = parseInt(document.getElementById('children-count').value) || 0;
-  state.draft.childrenCount = String(count);
-  const container = document.getElementById('children-names');
-  container.innerHTML = '';
-  for (let i = 1; i <= count; i++) {
-    const div = document.createElement('div');
-    div.className = 'field';
-    div.innerHTML = `<label for="child-name-${i}">Nome do filho ${i}</label>
-      <input type="text" id="child-name-${i}" placeholder="Ex: Mateus" autocomplete="off" />`;
-    container.appendChild(div);
+  /* ════════════════════════════════════════════════════════════
+     VALIDATION
+  ════════════════════════════════════════════════════════════ */
+  function clearErrors() {
+    document.querySelectorAll('.err-msg').forEach(e=>e.classList.remove('show'));
+    document.querySelectorAll('input.err,select.err').forEach(e=>e.classList.remove('err'));
   }
-  if (restoring && state.draft.childrenNames.length) {
-    state.draft.childrenNames.forEach((name, idx) => {
-      const el = document.getElementById(`child-name-${idx+1}`);
-      if (el && name) el.value = name;
+  function showErr(fieldId, msgId) {
+    if (fieldId) document.getElementById(fieldId)?.classList.add('err');
+    if (msgId)   document.getElementById(msgId)?.classList.add('show');
+  }
+
+  function validateStep(n) {
+    clearErrors();
+    let ok = true;
+    const d = state.draft;
+
+    if (n===1) {
+      if (!document.getElementById('name').value.trim()) { showErr('name','err-name'); ok=false; }
+      const bd = document.getElementById('birthdate').value;
+      const age = calcAge(bd);
+      if (!bd || age===null || age < 14) { showErr('birthdate','err-birthdate'); ok=false; }
+      if (!document.getElementById('weight').value) { showErr('weight','err-weight'); ok=false; }
+      if (!document.getElementById('height').value) { showErr('height','err-height'); ok=false; }
+    }
+    if (n===2) {
+      if (!d.cycleType) { showErr(null,'err-cycle-type'); ok=false; }
+      else if (d.cycleType==='regular') {
+        if (!document.getElementById('last-period').value) { showErr('last-period','err-last-period'); ok=false; }
+        const cd = parseInt(document.getElementById('cycle-duration').value);
+        if (isNaN(cd)||cd<15||cd>60) { showErr('cycle-duration','err-cycle-duration'); ok=false; }
+      }
+      else if (d.cycleType==='irregular') {
+        if (d.irregularMode==='dates') {
+          const d1 = document.getElementById('irr-date-1').value;
+          const d2 = document.getElementById('irr-date-2').value;
+          if (!d1||!d2) { showErr(null,'err-irr-dates'); ok=false; }
+        }
+        else if (d.irregularMode==='track') {
+          if (!document.getElementById('irr-track-start').value) { showErr('irr-track-start','err-irr-track'); ok=false; }
+        }
+        else { ok=false; } // no mode selected
+      }
+    }
+    if (n===3) {
+      if (d.hasPartner===null) { showErr(null,'err-partner'); ok=false; }
+      if (d.hasPartner===true && !document.getElementById('partner-name').value.trim()) { showErr('partner-name','err-partner-name'); ok=false; }
+      if (d.hasChildren===null) { showErr(null,'err-children'); ok=false; }
+      if (d.hasChildren===true) {
+        const cc = document.getElementById('children-count').value;
+        if (!cc) { showErr('children-count','err-children-count'); ok=false; }
+        else {
+          for (let i=1;i<=parseInt(cc);i++) {
+            const el = document.getElementById(`child-name-${i}`);
+            if (el&&!el.value.trim()) { el.classList.add('err'); ok=false; }
+          }
+        }
+      }
+    }
+    if (n===4) {
+      if (!d.pregnantStatus) { showErr(null,'err-pregnant'); ok=false; }
+      if (d.pregnantStatus==='yes') {
+        const pw = parseInt(document.getElementById('pregnancy-weeks').value);
+        if (isNaN(pw)||pw<1||pw>42) { showErr('pregnancy-weeks','err-pregnancy-weeks'); ok=false; }
+      }
+      if (!document.querySelectorAll('.goal-btn.selected').length) { showErr(null,'err-goals'); ok=false; }
+    }
+
+    if (ok) saveCurrentStep(n);
+    return ok;
+  }
+
+  /* ════════════════════════════════════════════════════════════
+     STEP NAVIGATION
+  ════════════════════════════════════════════════════════════ */
+  const STEPS    = [null,'step-1','step-2','step-3','step-4','step-5','step-welcome'];
+  const PROGRESS = [null, 20, 40, 60, 80, 100, 100];
+
+  function showStep(n) {
+    STEPS.forEach(id=>{ if(id) document.getElementById(id)?.classList.remove('active'); });
+    document.getElementById(STEPS[n])?.classList.add('active');
+
+    const isEnd = n >= 5;
+    document.getElementById('progress-section').style.display = isEnd ? 'none' : '';
+    if (!isEnd) {
+      document.getElementById('progress-fill').style.width = PROGRESS[n]+'%';
+      document.getElementById('step-label').textContent = `Passo ${n} de 4`;
+    }
+    state.currentStep = n;
+    saveDraft();
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+
+  function goToStep(n) {
+    if (n > state.currentStep && !validateStep(state.currentStep)) return;
+    if (n===2) document.getElementById('display-name').textContent = state.draft.name.split(' ')[0]||'';
+    if (n===5) { buildReviewScreen(); }
+    showStep(n);
+  }
+
+  /* ════════════════════════════════════════════════════════════
+     REVIEW SCREEN
+  ════════════════════════════════════════════════════════════ */
+  function buildReviewScreen() {
+    const d = state.draft;
+    const age = calcAge(d.birthdate);
+
+    document.getElementById('review-personal').innerHTML =
+      `👤 <strong>${d.name}</strong><br/>
+       🎂 ${new Date(d.birthdate).toLocaleDateString('pt-PT',{day:'2-digit',month:'long',year:'numeric'})} (${age} anos)<br/>
+       ⚖️ ${d.weight} kg · 📏 ${d.height} cm`;
+
+    let cycleHTML = '';
+    if (d.cycleType==='regular') {
+      cycleHTML = `🗓 Ciclo Regular<br/>
+        Último período: <strong>${new Date(d.lastPeriod+'T12:00').toLocaleDateString('pt-PT',{day:'2-digit',month:'long'})}</strong><br/>
+        Duração média: <strong>${d.cycleDuration} dias</strong>`;
+    } else if (d.cycleType==='irregular' && d.irregularMode==='dates') {
+      cycleHTML = `🔀 Ciclo Irregular (média calculada: ${d.irrAvgCycle||d.cycleDuration} dias)<br/>
+        Última menstruação: <strong>${new Date(d.irrDate1+'T12:00').toLocaleDateString('pt-PT',{day:'2-digit',month:'long'})}</strong>`;
+    } else {
+      cycleHTML = `🔀 Ciclo Irregular — o app vai registar a partir de agora`;
+    }
+    document.getElementById('review-cycle').innerHTML = cycleHTML;
+
+    let familyHTML = '';
+    if (d.hasPartner) familyHTML += `👫 Parceiro: <strong>${d.partnerName}</strong><br/>`;
+    else familyHTML += `👤 Sem parceiro<br/>`;
+    if (d.hasChildren && d.childrenCount) {
+      const names = d.childrenNames.filter(Boolean).join(', ');
+      familyHTML += `👶 ${d.childrenCount} filho(s): <strong>${names}</strong>`;
+    } else { familyHTML += `👶 Sem filhos`; }
+    document.getElementById('review-family').innerHTML = familyHTML;
+
+    const pregnantLabel = d.pregnantStatus==='yes'?`✅ Grávida — ${d.pregnancyWeeks} semanas`
+      : d.pregnantStatus==='maybe'?'🤔 Possivelmente grávida' : '❌ Não grávida';
+    const goalsLabel = d.goals.length ? d.goals.join(' · ') : '—';
+    document.getElementById('review-health').innerHTML =
+      `${pregnantLabel}<br/>
+       ${d.healthConditions?`🏥 ${d.healthConditions}<br/>`:''}
+       🎯 ${goalsLabel}`;
+  }
+
+  /* ════════════════════════════════════════════════════════════
+     CONFIRM & SAVE
+  ════════════════════════════════════════════════════════════ */
+  async function confirmAndSave() {
+    const d = state.draft;
+    const age = calcAge(d.birthdate);
+
+    const profile = {
+      userProfile: {
+        name: d.name, birthdate: d.birthdate, age,
+        weight: Number(d.weight), height: Number(d.height),
+        cycleType: d.cycleType,
+        lastPeriodDate: d.lastPeriod,
+        cycleDuration: Number(d.cycleDuration),
+        irregularMode: d.irregularMode,
+        irrAvgCycle: d.irrAvgCycle,
+        pregnantStatus: d.pregnantStatus,
+        pregnancyWeeks: d.pregnantStatus==='yes' ? Number(d.pregnancyWeeks) : null,
+        healthConditions: d.healthConditions || null,
+        goals: d.goals
+      },
+      familyStructure: {
+        hasPartner: d.hasPartner,
+        partnerName: d.hasPartner ? d.partnerName : null,
+        childrenCount: d.hasChildren ? Number(d.childrenCount) : 0,
+        children: d.hasChildren ? d.childrenNames.map((n,i)=>({id:i+1,name:n})) : []
+      },
+      createdAt: new Date().toISOString()
+    };
+
+    // Save locally
+    try { localStorage.setItem(DB_KEY, JSON.stringify(profile)); } catch(e) {}
+
+    // Save to Supabase
+    try {
+      const { error } = await db.from('profiles').insert([{
+        name: d.name, age,
+        weight: Number(d.weight), height: Number(d.height),
+        last_period_date: d.lastPeriod,
+        cycle_duration: Number(d.cycleDuration),
+        has_partner: d.hasPartner,
+        partner_name: d.hasPartner ? d.partnerName : null,
+        children_count: d.hasChildren ? Number(d.childrenCount) : 0,
+        children: d.hasChildren ? d.childrenNames.map((n,i)=>({id:i+1,name:n})) : [],
+        is_pregnant: d.pregnantStatus === 'yes',
+        pregnancy_weeks: d.pregnantStatus==='yes' ? Number(d.pregnancyWeeks) : null,
+        health_conditions: d.healthConditions || null,
+        goals: d.goals
+      }]);
+      if (error) console.warn('Supabase:', error.message);
+    } catch(e) { console.warn('Supabase indisponível, usando localStorage.'); }
+
+    localStorage.removeItem(LS_KEY);
+    buildWelcomeScreen(profile);
+    showStep(6);
+  }
+
+  /* ════════════════════════════════════════════════════════════
+     WELCOME SCREEN
+  ════════════════════════════════════════════════════════════ */
+  function buildWelcomeScreen(profile) {
+    const p = profile.userProfile;
+    const f = profile.familyStructure;
+    const firstName = p.name.split(' ')[0];
+
+    document.getElementById('welcome-title').textContent = `Bem-vinda, ${firstName}! 🌸`;
+    document.getElementById('welcome-sub').innerHTML =
+      `O teu espaço de saúde e bem-estar está pronto.<br/>
+       Aqui vais acompanhar o teu ciclo, a tua família e o teu bem-estar — tudo num só lugar.`;
+
+    const highlights = [];
+
+    // Cycle highlight
+    if (p.cycleType==='regular' && p.lastPeriodDate) {
+      const next = new Date(p.lastPeriodDate+'T12:00');
+      next.setDate(next.getDate() + p.cycleDuration);
+      const daysUntil = Math.round((next - new Date()) / 86400000);
+      if (daysUntil > 0) {
+        highlights.push({icon:'📅', text:`Próximo período estimado daqui a <strong>${daysUntil} dias</strong>`});
+      } else {
+        highlights.push({icon:'📅', text:`O teu período está <strong>previsto para hoje ou em breve</strong>`});
+      }
+    } else if (p.cycleType==='irregular') {
+      highlights.push({icon:'📊', text:`O app vai <strong>aprender o teu padrão</strong> ao longo dos próximos ciclos`});
+    }
+
+    // Pregnancy
+    if (p.pregnantStatus==='yes') {
+      highlights.push({icon:'🤰', text:`Grávida de <strong>${p.pregnancyWeeks} semanas</strong> — vamos acompanhar a tua jornada`});
+    } else if (p.pregnantStatus==='maybe') {
+      highlights.push({icon:'🤔', text:`Recorda-te de fazer um <strong>teste de gravidez</strong> e consultar o médico`});
+    }
+
+    // Family
+    if (f.hasPartner || f.childrenCount > 0) {
+      const members = [];
+      if (f.hasPartner) members.push(f.partnerName);
+      f.children.forEach(c => members.push(c.name));
+      highlights.push({icon:'💕', text:`A tua família já está no app: <strong>${members.join(', ')}</strong>`});
+    }
+
+    // Goals
+    if (p.goals && p.goals.length) {
+      const goalLabels = {ciclo:'Ciclo Menstrual',gravidez:'Gravidez',familia:'Saúde Familiar',bemestar:'Bem-estar',nutricao:'Nutrição',criacao:'Criação de Filhos'};
+      const goalNames = p.goals.map(g=>goalLabels[g]||g).join(', ');
+      highlights.push({icon:'🎯', text:`Objetivos ativos: <strong>${goalNames}</strong>`});
+    }
+
+    document.getElementById('welcome-highlights').innerHTML = highlights.map(h=>
+      `<div class="highlight-chip"><span>${h.icon}</span><span>${h.text}</span></div>`
+    ).join('');
+  }
+
+  function goToDashboard() {
+    window.location.href = 'dashboard.html';
+  }
+
+  /* ════════════════════════════════════════════════════════════
+     RESTORE UI
+  ════════════════════════════════════════════════════════════ */
+  function restoreUI() {
+    const d = state.draft;
+    const setVal = (id, val) => {
+      const el = document.getElementById(id);
+      if (el && val) el.value = val;
+    };
+
+    setVal('name', d.name); setVal('birthdate', d.birthdate);
+    setVal('weight', d.weight); setVal('height', d.height);
+    setVal('last-period', d.lastPeriod); setVal('cycle-duration', d.cycleDuration);
+    setVal('irr-date-1', d.irrDate1); setVal('irr-date-2', d.irrDate2); setVal('irr-date-3', d.irrDate3);
+    setVal('irr-track-start', d.irrTrackStart);
+    setVal('partner-name', d.partnerName);
+    setVal('pregnancy-weeks', d.pregnancyWeeks);
+    setVal('health-conditions', d.healthConditions);
+
+    if (d.cycleType) setCycleType(d.cycleType);
+    if (d.irregularMode) setIrregularMode(d.irregularMode);
+    if (d.hasPartner !== null) setToggle('partner', d.hasPartner);
+    if (d.hasChildren !== null) {
+      setToggle('children', d.hasChildren);
+      if (d.hasChildren && d.childrenCount) { setVal('children-count', d.childrenCount); generateChildFields(true); }
+    }
+    if (d.pregnantStatus) setToggle('pregnant', d.pregnantStatus);
+    if (d.goals && d.goals.length) {
+      d.goals.forEach(g => document.querySelector(`.goal-btn[data-goal="${g}"]`)?.classList.add('selected'));
+    }
+
+    showStep(state.currentStep);
+  }
+
+  /* ════════════════════════════════════════════════════════════
+     AUTO-SAVE WIRING
+  ════════════════════════════════════════════════════════════ */
+  function wireAutoSave() {
+    ['name','birthdate','weight','height'].forEach(id =>
+      document.getElementById(id)?.addEventListener('input', () => saveCurrentStep(1)));
+    ['last-period','cycle-duration'].forEach(id =>
+      document.getElementById(id)?.addEventListener('input', () => saveCurrentStep(2)));
+    ['irr-date-1','irr-date-2','irr-date-3'].forEach(id =>
+      document.getElementById(id)?.addEventListener('change', () => { saveCurrentStep(2); calcIrregularAvg(); }));
+    document.getElementById('irr-track-start')?.addEventListener('input', () => saveCurrentStep(2));
+    document.getElementById('partner-name')?.addEventListener('input', () => {
+      state.draft.partnerName = document.getElementById('partner-name').value.trim(); saveDraft();
+    });
+    document.getElementById('health-conditions')?.addEventListener('input', () => {
+      state.draft.healthConditions = document.getElementById('health-conditions').value.trim(); saveDraft();
     });
   }
-  if (!restoring) { state.draft.childrenNames = new Array(count).fill(''); saveDraft(); }
-}
 
-/* ══════════════════════════════════════════════════════════════
-   SUCCESS SCREEN
-══════════════════════════════════════════════════════════════ */
-function showSuccessScreen(profile) {
-  const p = profile.userProfile;
-  const f = profile.familyStructure;
-
-  document.getElementById('success-name').textContent = p.name;
-
-  const nextPeriod = (() => {
-    if (!p.lastPeriodDate) return '—';
-    const d = new Date(p.lastPeriodDate);
-    d.setDate(d.getDate() + p.cycleDuration);
-    return d.toLocaleDateString('pt-PT', { day:'2-digit', month:'long' });
+  /* ════════════════════════════════════════════════════════════
+     INIT
+  ════════════════════════════════════════════════════════════ */
+  (function init() {
+    loadDraft();
+    restoreUI();
+    wireAutoSave();
   })();
-
-  const goalsLine = p.goals && p.goals.length
-    ? `🎯 Objetivos: ${p.goals.join(', ')}`
-    : '';
-
-  const familyLine = (() => {
-    const parts = [];
-    if (f.hasPartner) parts.push(`👫 Parceiro: ${f.partnerName}`);
-    if (f.childrenCount > 0) {
-      const names = f.children.map(c => c.name || `Filho ${c.id}`).join(', ');
-      parts.push(`👶 ${f.childrenCount === 1 ? '1 filho' : f.childrenCount+' filhos'}: ${names}`);
-    }
-    if (!parts.length) parts.push('Sem membros adicionados');
-    return parts.join('<br/>');
-  })();
-
-  document.getElementById('summary-card').innerHTML = `
-    <div style="font-weight:600;color:var(--rose);margin-bottom:.5rem;font-size:.8rem;text-transform:uppercase;letter-spacing:.05em;">Resumo do perfil</div>
-    👤 <strong>${p.name}</strong>, ${p.age} anos · ${p.weight} kg · ${p.height} cm<br/>
-    ${p.isPregnant ? `🤰 Grávida — ${p.pregnancyWeeks} semanas<br/>` : ''}
-    📅 Próx. período estimado: <strong>${nextPeriod}</strong> (ciclo de ${p.cycleDuration} dias)<br/>
-    ${p.healthConditions ? `🏥 Condições: ${p.healthConditions}<br/>` : ''}
-    ${goalsLine ? goalsLine + '<br/>' : ''}
-    <div style="height:1px;background:#E8E0EF;margin:.6rem 0"></div>
-    ${familyLine}
-  `;
-
-  showStep(5);
-
-  setTimeout(() => {
-    const fill = document.getElementById('redirect-fill');
-    if (fill) fill.style.width = '100%';
-    setTimeout(goToDashboard, 3100);
-  }, 100);
-}
-
-function goToDashboard() {
-  window.location.href = 'dashboard.html';
-}
-
-function resetAll() {
-  resetState();
-  location.reload();
-}
-
-/* ══════════════════════════════════════════════════════════════
-   AUTO-SAVE & INIT
-══════════════════════════════════════════════════════════════ */
-function wireAutoSave() {
-  ['name','age','weight','height'].forEach(id => {
-    document.getElementById(id)?.addEventListener('input', saveStep1);
-  });
-  ['last-period','cycle-duration'].forEach(id => {
-    document.getElementById(id)?.addEventListener('input', saveStep2);
-  });
-  document.getElementById('partner-name')?.addEventListener('input', () => {
-    state.draft.partnerName = document.getElementById('partner-name').value.trim();
-    saveDraft();
-  });
-  document.getElementById('health-conditions')?.addEventListener('input', () => {
-    state.draft.healthConditions = document.getElementById('health-conditions').value.trim();
-    saveDraft();
-  });
-}
-
-(function init() {
-  loadDraft();
-  restoreUI();
-  wireAutoSave();
-})();
-</script>
+  </script>
 </body>
 </html>
