@@ -298,59 +298,115 @@
     <!-- ═══════════════════════════════════════════════════════ -->
     <!-- PASSO 3 — Estrutura Familiar                            -->
     <!-- ═══════════════════════════════════════════════════════ -->
-    <div class="step" id="step-3">
-      <div class="step-title">A tua família 💕</div>
-      <p class="step-desc">Vamos preparar o teu espaço familiar. Podes sempre alterar estas informações mais tarde.</p>
+    <!-- ═══════════════════════════════════════════════════════ -->
+<!-- PASSO 3 — Estrutura Familiar                            -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="step" id="step-3">
+  <div class="step-title">A tua família 💕</div>
+  <p class="step-desc">Vamos preparar o teu espaço familiar. Podes sempre alterar mais tarde.</p>
 
-      <!-- Parceiro -->
-      <div class="field">
-        <label>Tens marido ou parceiro?</label>
-        <div class="toggle-group">
-          <button class="toggle-btn" id="partner-yes" onclick="setToggle('partner', true)">Sim</button>
-          <button class="toggle-btn" id="partner-no"  onclick="setToggle('partner', false)">Não</button>
-        </div>
-        <div class="err-msg" id="err-partner">Por favor, seleciona uma opção.</div>
-      </div>
-
-      <div class="reveal" id="reveal-partner-name">
-        <div class="field" style="margin-bottom:0">
-          <label for="partner-name">Nome do teu parceiro</label>
-          <input type="text" id="partner-name" placeholder="Ex: João Miguel" autocomplete="off" />
-          <div class="err-msg" id="err-partner-name">Por favor, indica o nome do teu parceiro.</div>
-        </div>
-      </div>
-
-      <div class="divider"></div>
-
-      <!-- Filhos -->
-      <div class="field">
-        <label>Tens filhos?</label>
-        <div class="toggle-group">
-          <button class="toggle-btn" id="children-yes" onclick="setToggle('children', true)">Sim</button>
-          <button class="toggle-btn" id="children-no"  onclick="setToggle('children', false)">Não</button>
-        </div>
-        <div class="err-msg" id="err-children">Por favor, seleciona uma opção.</div>
-      </div>
-
-      <div class="reveal" id="reveal-children">
-        <div class="field">
-          <label for="children-count">Quantos filhos tens?</label>
-          <select id="children-count" onchange="generateChildFields()">
-            <option value="">Seleciona...</option>
-            <option value="1">1 filho</option>
-            <option value="2">2 filhos</option>
-            <option value="3">3 filhos</option>
-            <option value="4">4 filhos</option>
-            <option value="5">5 ou mais filhos</option>
-          </select>
-          <div class="err-msg" id="err-children-count">Por favor, seleciona a quantidade.</div>
-        </div>
-        <div id="children-names"></div>
-      </div>
-
-      <button class="btn-primary" onclick="goToStep(4)">Guardar e Continuar →</button>
-      <button class="btn-back" onclick="goToStep(2)">← Voltar</button>
+  <!-- Parceiro -->
+  <div class="field">
+    <label>Tens marido ou parceiro?</label>
+    <div class="toggle-group">
+      <button class="toggle-btn" id="partner-yes" onclick="setToggle('partner', true)">Sim</button>
+      <button class="toggle-btn" id="partner-no"  onclick="setToggle('partner', false)">Não</button>
     </div>
+    <div class="err-msg" id="err-partner">Por favor, seleciona uma opção.</div>
+  </div>
+
+  <div class="reveal" id="reveal-partner-name">
+    <div class="field" style="margin-bottom:0">
+      <label for="partner-name">Nome do teu parceiro</label>
+      <input type="text" id="partner-name" placeholder="Ex: João Miguel" autocomplete="off" />
+      <div class="err-msg" id="err-partner-name">Por favor, indica o nome do teu parceiro.</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- Filhos -->
+  <div class="field">
+    <label>Tens filhos?</label>
+    <div class="toggle-group">
+      <button class="toggle-btn" id="children-yes" onclick="setToggle('children', true)">Sim</button>
+      <button class="toggle-btn" id="children-no"  onclick="setToggle('children', false)">Não</button>
+    </div>
+    <div class="err-msg" id="err-children">Por favor, seleciona uma opção.</div>
+  </div>
+
+  <div class="reveal" id="reveal-children">
+    <div class="field">
+      <label for="children-count">Quantos filhos tens?</label>
+      <select id="children-count" onchange="generateChildFields()">
+        <option value="">Seleciona...</option>
+        <option value="1">1 filho</option>
+        <option value="2">2 filhos</option>
+        <option value="3">3 filhos</option>
+        <option value="4">4 filhos</option>
+        <option value="5">5 ou mais filhos</option>
+      </select>
+      <div class="err-msg" id="err-children-count">Por favor, seleciona a quantidade.</div>
+    </div>
+    <div id="children-names"></div>
+  </div>
+
+  <button class="btn-primary" onclick="goToStep(4)">Continuar →</button>
+  <button class="btn-back" onclick="goToStep(2)">← Voltar</button>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- PASSO 4 — Saúde & Objetivos                             -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="step" id="step-4">
+  <div class="step-title">Saúde & Objetivos 🌿</div>
+  <p class="step-desc">Ajuda-nos a personalizar o app para as tuas necessidades reais.</p>
+
+  <!-- Gravidez -->
+  <div class="field">
+    <label>Estás grávida atualmente?</label>
+    <div class="toggle-group">
+      <button class="toggle-btn" id="pregnant-yes" onclick="setToggle('pregnant', true)">Sim</button>
+      <button class="toggle-btn" id="pregnant-no"  onclick="setToggle('pregnant', false)">Não</button>
+    </div>
+    <div class="err-msg" id="err-pregnant">Por favor, seleciona uma opção.</div>
+  </div>
+
+  <div class="reveal" id="reveal-pregnancy-weeks">
+    <div class="field" style="margin-bottom:0">
+      <label for="pregnancy-weeks">Quantas semanas de gravidez?</label>
+      <input type="number" id="pregnancy-weeks" placeholder="Ex: 12" min="1" max="42" />
+      <div class="err-msg" id="err-pregnancy-weeks">Indica um valor entre 1 e 42 semanas.</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- Condições de saúde -->
+  <div class="field">
+    <label for="health-conditions">Tens alguma condição de saúde crónica?</label>
+    <input type="text" id="health-conditions" placeholder="Ex: Diabetes tipo 2, Hipertensão (ou deixa vazio)" autocomplete="off" />
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- Objetivos múltiplos -->
+  <div class="field">
+    <label>Quais os teus objetivos no app? <span style="font-weight:400;color:var(--muted)">(escolhe os que quiseres)</span></label>
+    <div class="goals-grid" id="goals-grid">
+      <button class="goal-btn" data-goal="ciclo"     onclick="toggleGoal(this)">🌙 Ciclo Menstrual</button>
+      <button class="goal-btn" data-goal="gravidez"  onclick="toggleGoal(this)">🤰 Gravidez</button>
+      <button class="goal-btn" data-goal="familia"   onclick="toggleGoal(this)">👨‍👩‍👧 Saúde Familiar</button>
+      <button class="goal-btn" data-goal="bemestar"  onclick="toggleGoal(this)">🧘 Bem-estar</button>
+      <button class="goal-btn" data-goal="nutricao"  onclick="toggleGoal(this)">🥗 Nutrição & Dieta</button>
+      <button class="goal-btn" data-goal="criacao"   onclick="toggleGoal(this)">🧒 Criação de Filhos</button>
+    </div>
+    <div class="err-msg" id="err-goals">Seleciona pelo menos um objetivo.</div>
+  </div>
+
+  <button class="btn-primary" onclick="goToStep(5)">Guardar e Continuar →</button>
+  <button class="btn-back" onclick="goToStep(3)">← Voltar</button>
+</div>
 
     <!-- ═══════════════════════════════════════════════════════ -->
     <!-- PASSO 4 — Sucesso                                       -->
