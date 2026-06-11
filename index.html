@@ -621,6 +621,7 @@ function saveCurrentStep(n) {
   if (n === 1) saveStep1();
   if (n === 2) saveStep2();
   if (n === 3) saveStep3();
+  if (n === 4) saveStep4();
 }
 
 function saveStep1() {
@@ -651,6 +652,19 @@ function saveStep3() {
     }
   }
   saveDraft();
+}
+
+function saveStep4() {
+  state.draft.isPregnant       = state.draft.isPregnant || false;
+  state.draft.pregnancyWeeks   = document.getElementById('pregnancy-weeks')?.value || '';
+  state.draft.healthConditions = document.getElementById('health-conditions').value.trim();
+  state.draft.goals            = [...document.querySelectorAll('.goal-btn.selected')].map(b => b.dataset.goal);
+  saveDraft();
+}
+
+function toggleGoal(btn) {
+  btn.classList.toggle('selected');
+  clearErrors();
 }
 
 /* ══════════════════════════════════════════════════════════════
@@ -716,8 +730,16 @@ function validateStep(n) {
     }
   }
 
-  return ok;
-}
+  if (n === 4) {
+    if (state.draft.isPregnant === null) { showErr(null, 'err-pregnant'); ok = false; }
+    if (state.draft.isPregnant === true) {
+      const pw = parseInt(document.getElementById('pregnancy-weeks').value);
+      if (isNaN(pw) || pw < 1 || pw > 42) { showErr('pregnancy-weeks', 'err-pregnancy-weeks'); ok = false; }
+    }
+    const goals = [...document.querySelectorAll('.goal-btn.selected')];
+    if (goals.length === 0) { showErr(null, 'err-goals'); ok = false; }
+    if (ok) saveStep4();
+  }
 
 /* ══════════════════════════════════════════════════════════════
    TOGGLE BUTTONS (Sim / Não)
