@@ -20,7 +20,7 @@
       --mint-dk:   #5A8D80;
       --sand:      #F5EFE6;
       --sand-dk:   #EDE5D8;
-      --ink:     #2D2638;
+      --ink:       #2D2638;
       --ink-soft:  #4A4258;
       --muted:     #8C8499;
       --white:     #FFFFFF;
@@ -81,9 +81,11 @@
     }
     .card-title { font-size:.78rem; font-weight:600; color:var(--muted); letter-spacing:.04em; text-transform:uppercase; margin-bottom:.8rem; }
 
+    /* ── Clinical Badges ── */
+    .condition-grid { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.2rem; }
     .health-badge {
       display: inline-flex; align-items: center; gap: 0.3rem; background: #fee2e2; color: #ef4444;
-      font-size: 0.72rem; font-weight: 600; padding: 0.25rem 0.75rem; border-radius: 99px; margin-top: 0.5rem;
+      font-size: 0.72rem; font-weight: 600; padding: 0.3rem 0.8rem; border-radius: 99px; border: 1px solid rgba(239, 68, 68, 0.15);
     }
 
     /* ── Cycle card layout ── */
@@ -121,7 +123,7 @@
     .mood-history { margin-top:1rem; padding-top:.9rem; border-top:1px solid var(--sand-dk); }
     .mood-history-title { font-size:.7rem; font-weight:600; color:var(--muted); margin-bottom:.5rem; }
     .mood-history-list  { display:flex; gap:.4rem; flex-wrap:wrap; }
-    .mood-history-chip  { font-size:.72rem; background:var(--sand); border-radius:99px; padding:.22rem .6... color:var(--ink-soft); display:flex; align-items:center; gap:.3rem; }
+    .mood-history-chip  { font-size:.72rem; background:var(--sand); border-radius:99px; padding:.22rem .6rem; color:var(--ink-soft); display:flex; align-items:center; gap:.3rem; }
 
     /* ── Vitals form ── */
     .vitals-row { display:grid; grid-template-columns:1fr 1fr 1fr; gap:.6rem; align-items:end; }
@@ -286,14 +288,14 @@ function selectMood(key, emoji, label) {
     btn.classList.toggle('selected', btn.getAttribute('onclick').includes(`'${key}'`));
   });
 
-  const recentDays = Object.entries(history.moods).sort((a,b) => b[0].localeCompare(a[0])).slice(0,7);
-  document.getElementById('mood-history-list').innerHTML = recentDays.map(([d,v]) => `
+  const recentMoods = Object.entries(history.moods).sort((a,b) => b[0].localeCompare(a[0])).slice(0,7);
+  document.getElementById('mood-history-list').innerHTML = recentMoods.map(([d,v]) => `
     <div class="mood-history-chip"><span>${v.emoji}</span><span>${fmtDate(d)}</span></div>`).join('');
   showToast(`Humor guardado: ${emoji} ${label}`);
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   VITALS LOGGING SYSTEM
+   VITALS LOGGING SYSTEM (120/80 SCALE)
 ═══════════════════════════════════════════════════════════════ */
 function saveVitals() {
   const sys = document.getElementById('v-sys').value;
@@ -333,10 +335,26 @@ function renderDashboard(profile, history) {
   const hr = new Date().getHours();
   const greet = hr < 12 ? 'Bom dia' : hr < 18 ? 'Boa tarde' : 'Boa noite';
 
+  // 🩺 SEPARATE BLOCK FOR CONDITIONS (SPLIT LOGIC)
+  let conditionsHTML = '';
+  if (up.healthConditions) {
+    // Separa o texto por vírgulas e limpa espaços vazios
+    const items = up.healthConditions.split(',').map(item => item.trim()).filter(Boolean);
+    if (items.length > 0) {
+      conditionsHTML = `
+        <div class="section-label">Acompanhamento Clínico</div>
+        <div class="card">
+          <div class="card-title" style="margin-bottom:0.6rem;">🏥 Condições Ativas</div>
+          <div class="condition-grid">
+            ${items.map(condition => `<span class="health-badge">🔹 ${condition}</span>`).join('')}
+          </div>
+        </div>`;
+    }
+  }
+
   let dynamicCardHTML = '';
   let barPct = 0;
 
-  // 1. CONDITIONAL CHECK: IS PREGNANT?
   if (up.pregnantStatus === 'yes') {
     const weeks = up.pregnancyWeeks || 1;
     barPct = Math.round((weeks / 40) * 100);
@@ -357,7 +375,6 @@ function renderDashboard(profile, history) {
         </div>
       </div>`;
   }
-  // 2. CONDITIONAL CHECK: IS IRREGULAR WITHOUT DATES? (TRACK MODE)
   else if (up.cycleType === 'irregular' && up.irregularMode === 'track') {
     dynamicCardHTML = `
       <div class="section-label">O teu ciclo</div>
@@ -374,7 +391,6 @@ function renderDashboard(profile, history) {
         </div>
       </div>`;
   }
-  // 3. BASE CASE: REGULAR OR IRREGULAR WITH DATES (CALCULABLE)
   else {
     const cycle = computeCycle(up.lastPeriodDate, up.cycleDuration || 28);
     barPct = Math.round((cycle.dayOfCycle / cycle.cycleDays) * 100);
@@ -401,7 +417,6 @@ function renderDashboard(profile, history) {
       </div>`;
   }
 
-  // Build Family Cards Dinamicamente
   let familyCardsHTML = '';
   if (f.hasPartner && f.partnerName) {
     familyCardsHTML += `
@@ -428,7 +443,6 @@ function renderDashboard(profile, history) {
     familyCardsHTML = '<div class="empty-family">Nenhum membro familiar gerido.</div>';
   }
 
-  // Mood rendering data
   const selectedMood = history.moods[todayKey()]?.key || null;
   const moodButtons = MOODS.map(m => `
     <button class="mood-btn ${selectedMood===m.key?'selected':''}" onclick="selectMood('${m.key}','${m.emoji}','${m.label}')">
@@ -440,7 +454,6 @@ function renderDashboard(profile, history) {
     <div class="mood-history-chip"><span>${v.emoji}</span><span>${fmtDate(d)}</span></div>`).join('')
     : `<span style="font-size:.78rem;color:var(--muted);font-style:italic;">Sem registos.</span>`;
 
-  // Vitals history render data
   const lastThreeVitals = (history.vitals || []).slice(-3).reverse();
   const vitalsRows = lastThreeVitals.length ? lastThreeVitals.map(v => `
     <div class="vh-row">
@@ -449,7 +462,6 @@ function renderDashboard(profile, history) {
       <div class="vh-vals">${v.weight} <span>kg</span></div>
     </div>`).join('') : `<div class="vh-empty">Sem leituras para exibir.</div>`;
 
-  // Inject content
   document.getElementById('app').innerHTML = `
     <div class="top-bar">
       <div class="brand-mark"><div class="brand-icon">🌸</div><div class="brand-name">MãePrevenida</div></div>
@@ -459,8 +471,10 @@ function renderDashboard(profile, history) {
     <div class="welcome-block">
       <div class="welcome-greeting">${greet},<br/><span>${firstName}</span> 🌸</div>
       <div class="welcome-sub">Aqui está o ponto de situação do teu lar.</div>
-      ${up.healthConditions ? `<div class="health-badge">🏥 Condição Monitorada: ${up.healthConditions}</div>` : ''}
     </div>
+
+    <!-- INJEÇÃO DO NOVO BLOCO CLÍNICO DE SEPARAÇÃO -->
+    ${conditionsHTML}
 
     ${dynamicCardHTML}
 
@@ -477,9 +491,9 @@ function renderDashboard(profile, history) {
     <div class="card">
       <div class="card-title">Tensão Arterial &amp; Peso</div>
       <div class="vitals-row">
-        <div class="vital-field"><label>Sistólica</label><input class="vital-input" type="number" id="v-sys" placeholder="12" /></div>
+        <div class="vital-field"><label>Sistólica</label><input class="vital-input" type="number" id="v-sys" placeholder="120" min="60" max="250" /></div>
         <div class="vital-sep">/</div>
-        <div class="vital-field"><label>Diastólica</label><input class="vital-input" type="number" id="v-dia" placeholder="8" /></div>
+        <div class="vital-field"><label>Diastólica</label><input class="vital-input" type="number" id="v-dia" placeholder="80" min="40" max="150" /></div>
       </div>
       <div class="vital-field" style="margin-top:.6rem;">
         <label>Peso atual (kg)</label>
@@ -502,10 +516,8 @@ function renderDashboard(profile, history) {
       <div class="family-grid">${familyCardsHTML}</div>
     </div>`;
 
-  // Fill Date Pill
   document.getElementById('today-pill').textContent = new Date().toLocaleDateString('pt-PT', { weekday:'short', day:'numeric', month:'short' });
 
-  // Animate target bars safely
   setTimeout(() => {
     const fillBar = document.getElementById('phase-bar');
     if (fillBar) fillBar.style.width = barPct + '%';
@@ -523,9 +535,6 @@ function renderNoProfile() {
     </div>`;
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   EXECUTION START
-═══════════════════════════════════════════════════════════════ */
 (function init() {
   const profile = loadProfile();
   const history = loadHistory();
